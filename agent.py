@@ -3,7 +3,7 @@ from agentState import AgentState
 
 class Agent:
     id_count = itertools.count()
-    visibility = 2
+    visibility = 20
     congestion_radius = 5
     velocity = 1.42 # Walking speed
 
@@ -19,17 +19,11 @@ class Agent:
 
     def queue(self):
         pass
-    
-    def move(self):
-        pass
 
-    def get_direction(self, attractions):
-        for attraction in attractions:
-            queue_time = len(attraction.queue)
-            pass
 
     def act(self, attractions):
         if self.state == AgentState.IN_PARK:
+            self.__agent_type.
             pass
         elif self.state == AgentState.IN_QUEUE:
             pass
