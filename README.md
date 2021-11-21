@@ -19,7 +19,7 @@ attractions = list(Attraction)
 id = int
 position = x,y
 type = Type
-target = str # Attraction
+target = Attraction # Attraction
 visited_attractions = dict(str:list(float)) # attraction strs
 
 visibility = float # Cone?
