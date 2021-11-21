@@ -21,5 +21,4 @@ class Behaviour:
             
 
     def move(self, direction):
-        
         pass

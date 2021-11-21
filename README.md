@@ -52,3 +52,9 @@ id = int
 leader = Agent
 agents = list(Agent)
 
+# Execution sequence
+- Agents close enough to enter queue
+- Advance queue
+- Calculate queue time
+- Move agents
+
