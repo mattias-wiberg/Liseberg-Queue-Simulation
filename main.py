@@ -1,11 +1,12 @@
 from agent import Agent
 from attraction import Attraction
+from agentType import Type
 
 x = 5
 
 print("Hello world")
-
-agent1 = Agent()
+aT1 = Type(0.8)
+agent1 = Agent((1,1), aT1)
 #agent2 = Agent()
 #agent3 = Agent()
 
