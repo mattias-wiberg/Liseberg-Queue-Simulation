@@ -2,9 +2,6 @@ from wagon import Wagon
 
 class Attraction:
     __check_back_limit = 5    # how far back to check in the q to fill up odd spots
-    """
-    queue_history = list(int)  # length delay, time history calculate w.r.t. ride time and size
-    """
 
     def __init__(self, name:str, attraction_coeff:float, wagon_size:int, wagon_ride_time:float, n_wagons:int, position:tuple):
         self.__name = name
@@ -18,15 +15,19 @@ class Attraction:
         
         self.__queue = []
         self.__queue_time = 0
+        self.__queue_time_history = []
 
     def add_to_queue(self, agent):
         self.__queue.append(agent)
+
+    def get_queue_size(self):
+        return len(self.__queue)
 
     def advance_queue(self, global_time):
         # this function modifies the internal variables
         if (global_time % self.__wagon_arrival_time) == 0:
             # let people off
-            current_wagon_idx = (global_time/self.__wagon_arrival_time) % self.__n_wagons
+            current_wagon_idx = int((global_time/self.__wagon_arrival_time) % self.__n_wagons)
             current_wagon = self.__wagons[current_wagon_idx]
             leaving_agent = current_wagon.clear()
             # TODO: update the leaving agent's state
@@ -52,13 +53,18 @@ class Attraction:
             
             next_in_line_size = self.__queue[0].get_group_size()
             
-        # check if anyone in the back can fit on the ride (up to self.__check_back_limit)
-        for i in range(1, self.__check_back_limit):
-            if len(self.__queue) > i and self.__queue[i].get_group_size() < places_left:
-                agent = self.__queue.pop(i)
-                places_left -= agent.get_group_size()
-                current_wagon.add_agent(agent)
-                # TODO: update agent state
+        if places_left == 0:
+            return
+        else:
+            # check if anyone in the back can still fit on the ride (up to self.__check_back_limit)
+            for i in range(1, self.__check_back_limit):
+                if len(self.__queue) > i and self.__queue[i].get_group_size() <= places_left:
+                    agent = self.__queue.pop(i)
+                    places_left -= agent.get_group_size()
+                    current_wagon.add_agent(agent)
+                    # TODO: update agent state
+                    if places_left == 0:
+                        return
 
 
     def __fake_advance_queue(self, fake_global_time, fake_queue):
@@ -72,24 +78,29 @@ class Attraction:
         while places_left >= next_in_line_size:
             # fill up the wagon
             places_left -= next_in_line_size
-            fake_queue.pop()
+            fake_queue.pop(0)
             
             if len(fake_queue) == 0:
                 return fake_queue
             
             next_in_line_size = fake_queue[0].get_group_size()
             
-        # check if anyone in the back can fit on the ride (up to self.__check_back_limit)
-        for i in range(1, self.__check_back_limit):
-            if len(fake_queue) > i and fake_queue[i].get_group_size() < places_left:
-                places_left -= fake_queue.pop(i).get_group_size()
+        if places_left == 0:
+            return fake_queue
+        else:
+            # check if anyone in the back can fit on the ride (up to self.__check_back_limit)
+            for i in range(1, self.__check_back_limit):
+                if len(fake_queue) > i and fake_queue[i].get_group_size() <= places_left:
+                    places_left -= fake_queue.pop(i).get_group_size()
+                    if places_left == 0:
+                        return fake_queue
 
         return fake_queue
 
 
     def calc_queue_time(self, global_time):
         fake_queue = self.__queue.copy()
-        fake_global_time = global_time.copy()
+        fake_global_time = global_time
 
         # calculate nearest modulo time
         if (fake_global_time % self.__wagon_arrival_time) == 0:
@@ -103,5 +114,9 @@ class Attraction:
             self.__fake_advance_queue(fake_global_time, fake_queue)
             fake_global_time += self.__wagon_arrival_time
 
+        self.__queue_time = fake_global_time - global_time
+        self.__queue_time_history.append(self.__queue_time)
+        #return self.__queue_time
+        return fake_global_time
 
 
