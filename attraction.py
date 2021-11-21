@@ -10,19 +10,27 @@ class Attraction:
     """
 
     def __init__(self, name:str, attraction_coeff:float, ride_size:int, ride_time:float, position:tuple):
-        self.name = name
-        self.attraction_coeff = attraction_coeff
-        self.ride_size = ride_size
-        self.ride_time = ride_time
-        self.position = position
-        self.queue = []
-        
+        self.__name = name
+        self.__attraction_coeff = attraction_coeff
+        self.__ride_size = ride_size
+        self.__ride_time = ride_time
+        self.__position = position
+        self.__queue = []
+        self.__queue_time = 0
 
     def add_to_queue(self, agent):
-        self.queue.append(agent)
+        self.__queue.append(agent)
+        self.__queue_time += (agent.get_group_size()*self.__ride_time)
+
+    def advance_queue(self):
+        places_left = self.__ride_size
+
+        while places_left > 0:
+            next_in_line = self.__queue[0].get_group_size()
+
 
     def remove_from_queue(self, idx=0):
-        return self.queue.pop(idx)
+        return self.__queue.pop(idx)
 
     
 
