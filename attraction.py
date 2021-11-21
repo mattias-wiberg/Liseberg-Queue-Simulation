@@ -19,6 +19,9 @@ class Attraction:
         self.__queue = []
         self.__queue_time = 0
 
+    def get_position(self):
+        return self.__position
+
     def add_to_queue(self, agent):
         self.__queue.append(agent)
 

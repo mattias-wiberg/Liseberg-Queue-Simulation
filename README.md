@@ -47,11 +47,6 @@ queue = queue(Agents)
 queue_history = list(int)  # length delay, time history calculate w.r.t. ride time and size
 name = str
 
-#### Group
-id = int
-leader = Agent
-agents = list(Agent)
-
 # Execution sequence
 - Agents close enough to enter queue
 - Advance queue

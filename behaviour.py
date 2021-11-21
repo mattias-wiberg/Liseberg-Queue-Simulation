@@ -3,11 +3,11 @@ import numpy as np
 import random
 
 class Type(Enum):
-    NAIVE = 1 # Target lowest queue time 
-    RANDOM = 2
-    CRAZY = 3
-    GREEDY = 4
-    SMART = 5
+    NAIVE = 1 # Target lowest q time 
+    RANDOM = 2 # Target max q time
+    CRAZY = 3 # Target random
+    GREEDY = 4 # Target closest
+    SMART = 5 # Target 
     EXTRAPOLATE = 6
 
 class Behaviour:
@@ -16,11 +16,11 @@ class Behaviour:
         self.__queue_prob = queue_prob
         pass
     
-    def get_queue_prob(self):
+    def get_queue_prob(self) -> None:
         return self.__queue_prob
         
     # Returns the attraction with the lowest queue time.
-    def get_lq_attraction(self, attractions):
+    def get_lq_attraction(self, attractions) -> None:
         min_index = 0
         for i in range(len(attractions)):
             if attractions[i].get_queue_time() < attractions[min_index].get_queue_time():
@@ -29,7 +29,7 @@ class Behaviour:
         return attractions[min_index]
 
     # Returns the attraction with the max queue time.
-    def get_mq_attraction(self, attractions):
+    def get_mq_attraction(self, attractions) -> None:
         max_index = 0
         for i in range(len(attractions)):
             if attractions[i].get_queue_time() > attractions[max_index].get_queue_time():
@@ -37,7 +37,7 @@ class Behaviour:
                 
         return attractions[max_index]
 
-    def new_target(self, agent, attractions):
+    def new_target(self, agent, attractions) -> None:
         if self.__type == Type.NAIVE:
             agent.set_target(self.get_lq_attraction(attractions))
         elif self.__type == Type.CRAZY:
@@ -55,5 +55,12 @@ class Behaviour:
             # TODO pick attraction with the lowest future q accoding to the history of the q:s
             pass
 
-    def move(self, direction):
+    def queue(self, attraction) -> None:
+        if random.random() < self.__type.get_queue_prob():
+            self.__target.add_to_queue(self)
+        else:
+            # TODO: Add what to do if the 
+            pass
+
+    def move(self, direction) -> None:
         pass
