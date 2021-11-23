@@ -1,12 +1,13 @@
 from wagon import Wagon
+import numpy as np
 
 class Attraction:
     __check_back_limit = 5    # how far back to check in the q to fill up odd spots
 
-    def __init__(self, name:str, attraction_coeff:float, wagon_size:int, wagon_ride_time:float, n_wagons:int, position:tuple):
+    def __init__(self, name:str, position:tuple, wagon_size:int, wagon_ride_time:float, n_wagons:int, attraction_coeff:float = 1):
         self.__name = name
         self.__attraction_coeff = attraction_coeff
-        self.__position = position
+        self.__position = np.array(position, dtype=np.float64)
 
         self.__wagon_arrival_time = round(wagon_ride_time/n_wagons)
         self.__wagon_size = wagon_size
@@ -17,13 +18,18 @@ class Attraction:
         self.__queue_time = 0
         self.__queue_time_history = []
 
+    def get_queue_time(self):
+        return self.__queue_time
+
     def get_position(self):
         return self.__position
 
-    def add_to_queue(self, agent):
-        self.__queue.append(agent)
+    def add_to_queue(self, *agents):
+        for agent in agents:
+            self.__queue.append(agent)
 
     def get_queue_size(self):
+        # TODO wrong size has to take into account group size
         return len(self.__queue)
 
     def advance_queue(self, global_time):
