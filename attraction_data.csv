@@ -1,4 +1,4 @@
-"attraction", "x", "y", "ride_size", "ride_time", "number_of_trains"
+attraction, x, y, ride_size, ride_time, number_of_trains
 FlumeRide, 57.69281414258674, 11.993042391921877, 4, 240, 28
 Hanghai, 57.69263077278707, 11.993006277506417, 40, 144, 1
 Mechanica, 57.692941532789405, 11.99438224967685, 30, 180, 1
