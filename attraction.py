@@ -30,6 +30,9 @@ class Attraction:
         self.__extrapolated_queue_time_polynomial = np.polyfit(x=[1,2], y=[0,0], deg=1)
         self.__global_time = 1  # used in get_extrapolated_queue_time to calculate the future time
 
+    def get_name(self):
+        return self.__name
+
     def get_position(self):
         return self.__position
 

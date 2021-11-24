@@ -121,6 +121,8 @@ class Agent:
     def update_target(self, attractions : List) -> None:
         if len(attractions) == 1:
             self.target = attractions[0]
+            direction = self.target.get_position() - self.position
+            self.direction = direction / np.linalg.norm(direction)
             return
 
         if self.type == Type.NAIVE:
