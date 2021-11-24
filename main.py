@@ -28,17 +28,18 @@ def load_data(path, attractions):
 attractions = []
 load_data('attraction_data.csv', attractions)
 agents = []
+world = World()
 for i in range(20):
-    agents.append(Agent((np.random.uniform(100, 350), np.random.uniform(200, 600)), attractions, np.random.randint(4)+1, type=Type.NAIVE))
-world = World(agents, attractions)
+    agents.append(Agent((np.random.uniform(100, 350), np.random.uniform(200, 600)), attractions, world.get_history(), np.random.randint(4)+1, type=Type.NAIVE))
+world.fill_world(agents, attractions)
 world.draw()
 for t in range(1,1000):
     for attraction in attractions:
         attraction.advance_queue(t)
         attraction.calc_queue_time(t)
     for agent in agents:
-        agent.update(world.get_history())
+        agent.update()
     world.save()
-    if t % 20 == 0:
+    if t % 10 == 0:
         world.draw()
 plt.waitforbuttonpress()

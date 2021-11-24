@@ -6,7 +6,7 @@ class World:
     RED_COUNT = 180 # Queue_size for when attractions should be red colored
     FPS = 1
 
-    def __init__(self, agents, attractions) -> None:
+    def __init__(self, agents=[], attractions=[]) -> None:
         self.__agents = agents
         self.__attractions = attractions
         self.history = []
@@ -16,8 +16,12 @@ class World:
     def get_history(self):
         return self.history
         
+    def fill_world(self, agents, attractions):
+        self.__agents = agents.copy()
+        self.__attractions = attractions.copy()
+
     def save(self):
-        self.history.append((self.agents.copy(), self.attractions.copy()))
+        self.history.append((self.__agents.copy(), self.__attractions.copy()))
 
     def draw(self):
         self.ax.clear()

@@ -23,12 +23,13 @@ class Agent:
     visibility = 20
     congestion_radius = 5
 
-    def __init__(self, position:tuple, attractions : List, group_size = 1, type=Type.NAIVE, queue_prob = 1) -> None:
+    def __init__(self, position:tuple, attractions : List, history : List, group_size = 1, type=Type.NAIVE, queue_prob = 1) -> None:
         self.id = next(self.id_count)
         self.attractions = attractions
         self.position = np.array(position, dtype=np.float64)
         self.group_size = group_size
         self.visited = []
+        self.history = history
         self.queue_prob = queue_prob
         self.velocity = 1.42 * (11-group_size)/10 # Walking speed
         self.direction = np.array([0,0], dtype=np.float64)
@@ -93,12 +94,12 @@ class Agent:
             elif attractions[i].get_queue_time() == mq_attractions[0].get_queue_time():
                 mq_attractions.append(attractions[i])
 
-    def update(self, history):
+    def update(self):
         if self.state == State.IN_PARK:
             if self.at_target():
                 self.queue()
             else:
-                self.move(history)
+                self.move()
 
     def queue(self) -> None:
         if random.random() < self.queue_prob:
@@ -108,23 +109,25 @@ class Agent:
             # TODO: Add what to do if not to queue
             pass
         
-    def move(self, history) -> None:
+    def move(self) -> None:
         to_visit = list(set(self.attractions) - set(self.visited))
         if len(to_visit) != 0:
             if not self.commited:
-                self.update_target(to_visit, history)
+                self.update_target(to_visit)
             self.position += self.direction * self.velocity
         else:
             self.set_state(State.OUT_OF_PARK)
         
          
-    def update_target(self, attractions : List, history) -> None:
+    def update_target(self, attractions : List) -> None:
         if self.type == Type.NAIVE:
-            lq_attractions = self.get_lq_attraction(attractions)
-            distances = self.get_distances(attractions)
-            self.target = attractions[distances.index(min(distances))]
+            lq_attractions = self.get_lq_attractions(attractions)
+            distances = self.get_distances(lq_attractions)
+            self.target = lq_attractions[distances.index(min(distances))]
         elif self.type == Type.CRAZY:
-            self.target = self.get_mq_attraction(attractions)
+            mq_attractions = self.get_mq_attractions(attractions)
+            distances = self.get_distances(mq_attractions)
+            self.target = mq_attractions[distances.index(min(distances))]
         elif self.type == Type.RANDOM:
             self.target = random.choice(attractions)
         elif self.type == Type.GREEDY:
