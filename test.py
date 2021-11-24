@@ -64,3 +64,5 @@ fp_out = "./image.gif"
 img, *imgs = [Image.open(f) for f in glob.glob(fp_in).sort(key = int)]
 img.save(fp=fp_out, format='GIF', append_images=imgs,
          save_all=True, duration=2, loop=0)
+
+# %%

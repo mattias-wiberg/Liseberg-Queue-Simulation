@@ -30,7 +30,7 @@ load_data('attraction_data.csv', attractions)
 agents = []
 world = World()
 N = 0
-for i in range(10):
+for i in range(1000):
     n = np.random.randint(4)+1
     N += n
     agents.append(Agent((np.random.uniform(100, 350), np.random.uniform(200, 600)), attractions, n, type=Type.EXTRAPOLATE))
@@ -45,12 +45,11 @@ while not world.park_empty():
         attraction.advance_queue(t)
         attraction.calc_queue_time(t)
     for agent in agents:
-
         agent.update()
-    if t % 2 == 0:
+    if t % 5 == 0:
         print(t)
         world.draw(t)
-        world.save(t, True)
+        #world.save(t, True)
     t += 1
 
 world.draw(t)
@@ -62,7 +61,7 @@ print(N)
 avg_queue_time = 0
 for attraction in attractions:
     avg_queue_time += attraction.get_avg_queue_time()
-    print(f'{attraction.__name} : {attraction.get_avg_queue_time()} ')
+    #print(f'{attraction.__name} : {attraction.get_avg_queue_time()} ')
 
 print(f'Average queue time over all attractions: {avg_queue_time/len(attractions)}')
 
