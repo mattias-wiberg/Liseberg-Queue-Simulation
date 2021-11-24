@@ -113,19 +113,10 @@ class Attraction:
 
         return fake_queue
 
-    def __set_queue_time(self, time):
-        if self.__delay > 0:
-            if len(self.__queue_time_history) == self.__delay:
-                self.__queue_time_history.pop(0)
-            self.__queue_time_history.append(time)
-        else:
-            self.__queue_time_history = [time]
-
-
     def calc_queue_time(self, global_time):
         if len(self.__queue) == 0:
             # there is no queue, so set the queue time to zero
-            self.__set_queue_time(0)
+            self.__queue_time_history.append(0)
             return
         
         fake_queue = self.__queue.copy()
@@ -148,8 +139,15 @@ class Attraction:
                 fake_global_time += self.__wagon_arrival_time
 
         queue_time = fake_global_time - global_time
-        self.__set_queue_time(queue_time)
+        self.__queue_time_history.append(queue_time)
         
 
     def get_queue_time(self):
-        return self.__queue_time_history[0]
+        # 0: oldest queue time
+        # -1: newest queue time (just appended)
+        if len(self.__queue_time_history) - 1 - self.__delay < 0:
+            # if history is not long enough yet, return the oldest value 
+            return self.__queue_time_history[0]
+        else:
+            # newest - delay
+            return self.__queue_time_history[len(self.__queue_time_history) - 1 - self.__delay]
