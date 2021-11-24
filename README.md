@@ -49,7 +49,8 @@ name = str
 
 # Execution sequence
 - Agents close enough to enter queue
-- Advance queue
-- Calculate queue time
+- Advance queue: Attraction.advance_queue(global_time)
+- Calculate queue time: Attraction.calc_queue_time(global_time)
+(NOTE: very important for this to be called after advance queue due to th ecalculate nearest modulo time implementation in calc_queue_time)
 - Move agents
 
