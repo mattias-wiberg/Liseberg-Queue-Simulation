@@ -1,4 +1,4 @@
-from agent import Agent
+from agent import Agent, Type
 from attraction import Attraction
 from world import World
 import numpy as np
@@ -32,9 +32,11 @@ for i in range(20):
     agents.append(Agent(tuple(np.random.random(2)*500),attractions,np.random.randint(4)+1))
 world = World(agents, attractions)
 world.draw()
-for i in range(400):
+for t in range(1000):
+    for attraction in attractions:
+        attraction.calc_queue_time(t)
     for agent in agents:
-        agent.update(attractions)
-    if i % 20 == 0:
+        agent.update()
+    if t % 10 == 0:
         world.draw()
 plt.waitforbuttonpress()

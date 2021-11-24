@@ -1,5 +1,5 @@
 from matplotlib import pyplot as plt
-from agent import AgentState
+from agent import State
 
 class World:
     ATTRACTION_SIZE = 50 # Size for plotting
@@ -23,7 +23,7 @@ class World:
 
     def draw_agents(self):
         for agent in self.__agents:
-            if agent.get_state() == AgentState.IN_PARK:
+            if agent.get_state() == State.IN_PARK:
                 position = agent.get_position()
                 self.ax.scatter(position[0], position[1], s=self.ATTRACTION_SIZE*agent.get_group_size()/4, color='b')
         

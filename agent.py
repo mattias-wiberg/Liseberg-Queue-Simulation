@@ -4,7 +4,9 @@ import numpy as np
 import random
 from enum import Enum
 
-class AgentState(Enum):
+from attraction import Attraction
+
+class State(Enum):
     IN_PARK = 1
     OUT_OF_PARK = 2
     IN_QUEUE = 3
@@ -22,18 +24,18 @@ class Agent:
     id_count = itertools.count()
     visibility = 20
     congestion_radius = 5
-    velocity = 1.42 # Walking speed
 
-    def __init__(self, position:tuple, attractions, group_size = 1, type=Type.NAIVE, queue_prob = 1) -> None:
+    def __init__(self, position:tuple, attractions : List, group_size = 1, type=Type.NAIVE, queue_prob = 1) -> None:
         self.id = next(self.id_count)
+        self.attractions = attractions
         self.position = np.array(position, dtype=np.float64)
-        self.state = AgentState.IN_PARK
         self.group_size = group_size
         self.visited = []
         self.queue_prob = queue_prob
-        self.type = type
+        self.velocity = 1.42 * (11-group_size)/10 # Walking speed
         self.direction = np.array([0,0], dtype=np.float64)
-        self.update_target(attractions)
+        self.set_type(type)
+        self.set_state(State.IN_PARK)
 
     def get_queue_prob(self) -> None:
         return self.queue_prob
@@ -50,7 +52,19 @@ class Agent:
     def get_group_size(self):
         return self.group_size
 
-    def set_state(self, state : AgentState):
+    def set_type(self, type : Type):
+        if type == Type.RANDOM:
+            self.commited = True
+        else:
+            self.commited = False
+
+        self.type = type
+
+    def set_state(self, state : State):
+        if state == State.IN_PARK:
+            to_visit = list(set(self.attractions) - set(self.visited))
+            self.update_target(to_visit)
+            
         self.state = state
 
     def add_visited(self, attraction):
@@ -58,55 +72,53 @@ class Agent:
 
     
     # Returns the attraction with the lowest queue time.
-    def get_lq_attractions(self, attractions) -> List:
-        lq_attractions = [attractions[0]]
-        for i in range(1,len(attractions)):
-            if attractions[i].get_queue_time() < lq_attractions[0].get_queue_time():
-                lq_attractions = [attractions[i]]
-            elif attractions[i].get_queue_time() == lq_attractions[0].get_queue_time():
-                lq_attractions.append(attractions[i])
+    def get_lq_attraction(self, attractions) -> Attraction:
+        min_index = 0
+        for i in range(len(attractions)):
+            if attractions[i].get_queue_time() < attractions[min_index].get_queue_time():
+                min_index = i
                 
-        return lq_attractions
+        return attractions[min_index]
 
     # Returns the attraction with the max queue time.
-    def get_mq_attractions(self, attractions) -> List:
-        mq_attractions = [attractions[0]]
-        for i in range(1,len(attractions)):
-            if attractions[i].get_queue_time() > mq_attractions[0].get_queue_time():
-                mq_attractions = [attractions[i]]
-            elif attractions[i].get_queue_time() == mq_attractions[0].get_queue_time():
-                mq_attractions.append(attractions[i])
+    def get_mq_attraction(self, attractions) -> List:
+        max_index = 0
+        for i in range(len(attractions)):
+            if attractions[i].get_queue_time() > attractions[max_index].get_queue_time():
+                max_index = i
                 
-        return mq_attractions
+        return attractions[max_index]
 
-    def update(self, attractions):
-        if self.state == AgentState.IN_PARK:
+    def update(self):
+        if self.state == State.IN_PARK:
             if self.at_target():
                 self.queue()
             else:
-                self.move(attractions)
+                self.move()
 
     def queue(self) -> None:
         if random.random() < self.queue_prob:
             self.target.add_to_queue(self)
-            self.state = AgentState.IN_QUEUE
+            self.set_state(State.IN_QUEUE)
         else:
             # TODO: Add what to do if not to queue
             pass
         
-    def move(self, attractions) -> None:
-        if len(attractions) != 0:
-            self.update_target(attractions)
+    def move(self) -> None:
+        to_visit = list(set(self.attractions) - set(self.visited))
+        if len(to_visit) != 0:
+            if not self.commited:
+                self.update_target(to_visit)
             self.position += self.direction * self.velocity
         else:
-            self.set_state(AgentState.OUT_OF_PARK)
+            self.set_state(State.OUT_OF_PARK)
         
          
-    def update_target(self, attractions) -> None:
+    def update_target(self, attractions : List) -> None:
         if self.type == Type.NAIVE:
-            self.target = random.choice(self.get_lq_attractions(attractions))
+            self.target = self.get_lq_attraction(attractions)
         elif self.type == Type.CRAZY:
-            self.target = random.choice(self.get_mq_attractions(attractions))
+            self.target = self.get_mq_attraction(attractions)
         elif self.type == Type.RANDOM:
             self.target = random.choice(attractions)
         elif self.type == Type.GREEDY:
