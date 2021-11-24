@@ -52,4 +52,12 @@ while not world.park_empty():
     t += 1
 print(t)
 print(N)
+
+avg_queue_time = 0
+for attraction in attractions:
+    avg_queue_time += attraction.get_avg_queue_time()
+    print(f'{attraction.__name} : {attraction.get_avg_queue_time()} ')
+
+print(f'Average queue time over all attractions: {avg_queue_time/len(attractions)}')
+
 plt.waitforbuttonpress()

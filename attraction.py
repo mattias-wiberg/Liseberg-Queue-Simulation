@@ -183,3 +183,6 @@ class Attraction:
         else:
             # newest - delay
             return self.__queue_time_history[len(self.__queue_time_history) - 1 - self.__delay]
+
+    def get_avg_queue_time(self):
+        return sum(self.__queue_time_history) / len(self.__queue_time_history)

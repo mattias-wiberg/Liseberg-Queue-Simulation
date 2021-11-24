@@ -141,6 +141,7 @@ class Agent:
             # TODO pick attraction according to distance and qtime
             pass
         elif self.type == Type.EXTRAPOLATE:
+            # TODO: bugfix, agents getting stuck between attractions undecided
             # picks attraction with the lowest future q according to the queue history
             distances = self.get_distances(attractions)
             expected_future_queue_times = [0]*len(distances)
