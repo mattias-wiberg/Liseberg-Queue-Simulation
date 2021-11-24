@@ -1,5 +1,6 @@
 from wagon import Wagon
 import numpy as np
+from agent import State
 
 class Attraction:
     def __init__(self, name:str, position:tuple, wagon_size:int, wagon_ride_time:float, n_wagons:int, attraction_coeff:float = 1, 
@@ -19,7 +20,7 @@ class Attraction:
         self.__queue = []
         self.__queue_time_history = [0]
         self.__delay = delay
-        self.__queue_size = 0   # takes agent group size into account
+        self.__queue_size = 0   # takes agent group size into account # TODO: remove later (shouldn't be used anywhere)
 
     def get_position(self):
         return self.__position
@@ -30,6 +31,7 @@ class Attraction:
             self.__queue_size += agent.get_group_size()
 
     def get_queue_size(self):
+        # TODO: remove later (shouldn't be used anywhere)
         return self.__queue_size
 
     def advance_queue(self, global_time):
@@ -38,10 +40,11 @@ class Attraction:
             # let people off
             current_wagon_idx = int((global_time/self.__wagon_arrival_time) % self.__n_wagons)
             current_wagon = self.__wagons[current_wagon_idx]
-            leaving_agent = current_wagon.clear()
-            if len(leaving_agent) > 0:
-                # TODO: update the leaving agent's state
-                pass
+            leaving_agents = current_wagon.clear()
+            if len(leaving_agents) > 0:
+                # update the states of the leaving agents
+                for agent in leaving_agents:
+                    agent.add_visited(self)
         else:
             # no arriving wagon so nothing to update
             return
@@ -58,7 +61,7 @@ class Attraction:
             places_left -= agent.get_group_size()
             self.__queue_size -= agent.get_group_size()
             current_wagon.add_agent(agent)
-            # TODO: update agent state
+            agent.set_state(State.ON_RIDE)
             
             if len(self.__queue) == 0:
                 return
@@ -75,7 +78,7 @@ class Attraction:
                     places_left -= agent.get_group_size()
                     self.__queue_size -= agent.get_group_size()
                     current_wagon.add_agent(agent)
-                    # TODO: update agent state
+                    agent.set_state(State.ON_RIDE)
                     if places_left == 0:
                         return
 
