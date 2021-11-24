@@ -28,7 +28,7 @@ def load_data(path, attractions):
 attractions = []
 load_data('attraction_data.csv', attractions)
 agents = []
-for i in range(100):
+for i in range(20):
     agents.append(Agent((np.random.uniform(100, 350), np.random.uniform(200, 600)), attractions, np.random.randint(4)+1, type=Type.NAIVE))
 world = World(agents, attractions)
 world.draw()

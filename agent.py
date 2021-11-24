@@ -121,18 +121,14 @@ class Agent:
     def update_target(self, attractions : List, history) -> None:
         if self.type == Type.NAIVE:
             lq_attractions = self.get_lq_attraction(attractions)
-            distances = []
-            for attraction in attractions:
-                distances.append(np.linalg.norm(attraction.get_position() - self.position))
+            distances = self.get_distances(attractions)
             self.target = attractions[distances.index(min(distances))]
         elif self.type == Type.CRAZY:
             self.target = self.get_mq_attraction(attractions)
         elif self.type == Type.RANDOM:
             self.target = random.choice(attractions)
         elif self.type == Type.GREEDY:
-            distances = []
-            for attraction in attractions:
-                distances.append(np.linalg.norm(attraction.get_position() - self.position))
+            distances = self.get_distances(attractions)
             self.target = attractions[distances.index(min(distances))]
             pass
         elif self.type == Type.SMART:
@@ -144,6 +140,12 @@ class Agent:
         
         direction = self.target.get_position() - self.position
         self.direction = direction / np.linalg.norm(direction)
+
+    def get_distances(self, attractions) -> List:
+        distances = []
+        for attraction in attractions:
+            distances.append(np.linalg.norm(attraction.get_position() - self.position))
+        return distances
 
     def at_target(self) -> bool:
         direction = self.target.get_position() - self.position
