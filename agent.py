@@ -4,8 +4,6 @@ import numpy as np
 import random
 from enum import Enum
 
-from attraction import Attraction
-
 class State(Enum):
     IN_PARK = 1
     OUT_OF_PARK = 2
@@ -64,37 +62,43 @@ class Agent:
         if state == State.IN_PARK:
             to_visit = list(set(self.attractions) - set(self.visited))
             self.update_target(to_visit)
-            
+
         self.state = state
 
     def add_visited(self, attraction):
         self.visited.append(attraction)
+        if len(self.attractions) - len(self.visited) == 0: # Visited all
+            self.set_state(State.OUT_OF_PARK)
+        else:
+            self.set_state(State.IN_PARK)
 
     
     # Returns the attraction with the lowest queue time.
-    def get_lq_attraction(self, attractions) -> Attraction:
-        min_index = 0
-        for i in range(len(attractions)):
-            if attractions[i].get_queue_time() < attractions[min_index].get_queue_time():
-                min_index = i
-                
-        return attractions[min_index]
+    def get_lq_attractions(self, attractions) -> List:
+        lq_attractions = [attractions[0]]
+        for i in range(1,len(attractions)):
+            if attractions[i].get_queue_time() < lq_attractions[0].get_queue_time():
+                lq_attractions = [attractions[i]]
+            elif attractions[i].get_queue_time() == lq_attractions[0].get_queue_time():
+                lq_attractions.append(attractions[i])
+
+        return lq_attractions
 
     # Returns the attraction with the max queue time.
-    def get_mq_attraction(self, attractions) -> List:
-        max_index = 0
-        for i in range(len(attractions)):
-            if attractions[i].get_queue_time() > attractions[max_index].get_queue_time():
-                max_index = i
-                
-        return attractions[max_index]
+    def get_mq_attractions(self, attractions) -> List:
+        mq_attractions = [attractions[0]]
+        for i in range(1,len(attractions)):
+            if attractions[i].get_queue_time() > mq_attractions[0].get_queue_time():
+                mq_attractions = [attractions[i]]
+            elif attractions[i].get_queue_time() == mq_attractions[0].get_queue_time():
+                mq_attractions.append(attractions[i])
 
-    def update(self):
+    def update(self, history):
         if self.state == State.IN_PARK:
             if self.at_target():
                 self.queue()
             else:
-                self.move()
+                self.move(history)
 
     def queue(self) -> None:
         if random.random() < self.queue_prob:
@@ -104,26 +108,32 @@ class Agent:
             # TODO: Add what to do if not to queue
             pass
         
-    def move(self) -> None:
+    def move(self, history) -> None:
         to_visit = list(set(self.attractions) - set(self.visited))
         if len(to_visit) != 0:
             if not self.commited:
-                self.update_target(to_visit)
+                self.update_target(to_visit, history)
             self.position += self.direction * self.velocity
         else:
             self.set_state(State.OUT_OF_PARK)
         
          
-    def update_target(self, attractions : List) -> None:
+    def update_target(self, attractions : List, history) -> None:
         if self.type == Type.NAIVE:
-            self.target = self.get_lq_attraction(attractions)
+            lq_attractions = self.get_lq_attraction(attractions)
+            distances = []
+            for attraction in attractions:
+                distances.append(np.linalg.norm(attraction.get_position() - self.position))
+            self.target = attractions[distances.index(min(distances))]
         elif self.type == Type.CRAZY:
             self.target = self.get_mq_attraction(attractions)
         elif self.type == Type.RANDOM:
             self.target = random.choice(attractions)
         elif self.type == Type.GREEDY:
-            # np.linalg.norm(b-a, axis=1) 
-            # TODO pick closest attraction in attractions
+            distances = []
+            for attraction in attractions:
+                distances.append(np.linalg.norm(attraction.get_position() - self.position))
+            self.target = attractions[distances.index(min(distances))]
             pass
         elif self.type == Type.SMART:
             # TODO pick attraction according to distance and qtime

@@ -45,9 +45,10 @@ def plot(a, data):
     ax.set_xlim(xmin-0.1*(xmax-xmin),xmax+0.1*(xmax-xmin))
     ax.set_ylim(ymin-0.1*(ymax-ymin),ymax+0.1*(ymax-ymin))
 
-ani = matplotlib.animation.FuncAnimation(fig, plot, fargs=(data,),
-            frames=4, interval=100, repeat=True) 
-plt.show()
+#ani = matplotlib.animation.FuncAnimation(fig, plot, fargs=(data,),
+#            frames=4, interval=100, repeat=True) 
+#plt.show()
 
 
 load_data("attraction_data.csv")
+
