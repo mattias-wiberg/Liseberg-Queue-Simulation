@@ -3,8 +3,8 @@ from agent import State
 
 class World:
     ATTRACTION_SIZE = 50 # Size for plotting
-    RED_COUNT = 180 # Queue_size for when attractions should be red colored
-    FPS = 1
+    RED_COUNT = 5*60 # Queue_size for when attractions should be red colored
+    FPS = 60
 
     def __init__(self, agents=[], attractions=[]) -> None:
         self.__agents = agents
@@ -19,6 +19,13 @@ class World:
     def fill_world(self, agents, attractions):
         self.__agents = agents.copy()
         self.__attractions = attractions.copy()
+
+    def park_empty(self):
+        n_out_of_park = 0
+        for agent in self.__agents:
+            if agent.get_state() == State.OUT_OF_PARK:
+                n_out_of_park += 1
+        return n_out_of_park == len(self.__agents)
 
     def save(self):
         self.history.append((self.__agents.copy(), self.__attractions.copy()))

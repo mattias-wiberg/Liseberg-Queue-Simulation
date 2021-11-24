@@ -23,13 +23,12 @@ class Agent:
     visibility = 20
     congestion_radius = 5
 
-    def __init__(self, position:tuple, attractions : List, history : List, group_size = 1, type=Type.NAIVE, queue_prob = 1) -> None:
+    def __init__(self, position:tuple, attractions : List, group_size = 1, type=Type.NAIVE, queue_prob = 1) -> None:
         self.id = next(self.id_count)
         self.attractions = attractions
         self.position = np.array(position, dtype=np.float64)
         self.group_size = group_size
         self.visited = []
-        self.history = history
         self.queue_prob = queue_prob
         self.velocity = 1.42 * (11-group_size)/10 # Walking speed
         self.direction = np.array([0,0], dtype=np.float64)

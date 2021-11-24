@@ -23,23 +23,33 @@ def load_data(path, attractions):
         number_of_wagons = row[5]
         x = R * np.cos(np.deg2rad(lat)) * np.cos(np.deg2rad(lon))
         y = R * np.cos(np.deg2rad(lat)) * np.sin(np.deg2rad(lon))
-        attractions.append(Attraction(name, (x-org_x,y-org_y), ride_size, ride_time, number_of_wagons))
+        attractions.append(Attraction(name, (x-org_x,y-org_y), ride_size, ride_time, number_of_wagons, delay=10))
 
 attractions = []
 load_data('attraction_data.csv', attractions)
 agents = []
 world = World()
-for i in range(20):
-    agents.append(Agent((np.random.uniform(100, 350), np.random.uniform(200, 600)), attractions, world.get_history(), np.random.randint(4)+1, type=Type.NAIVE))
+N = 0
+for i in range(1000):
+    n = np.random.randint(4)+1
+    N += n
+    agents.append(Agent((np.random.uniform(100, 350), np.random.uniform(200, 600)), attractions, n, type=Type.GREEDY))
+    #agents.append(Agent((np.random.uniform(100, 350), np.random.uniform(200, 600)), attractions, world.get_history(), 4, type=Type.GREEDY))
+
 world.fill_world(agents, attractions)
-world.draw()
-for t in range(1,1000):
+#world.draw()
+t = 1
+while not world.park_empty():
     for attraction in attractions:
         attraction.advance_queue(t)
         attraction.calc_queue_time(t)
     for agent in agents:
         agent.update()
     world.save()
-    if t % 10 == 0:
-        world.draw()
+    if t % 100 == 0:
+        print(t)
+        #world.draw()
+    t += 1
+print(t)
+print(N)
 plt.waitforbuttonpress()
