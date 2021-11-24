@@ -119,6 +119,10 @@ class Agent:
         
          
     def update_target(self, attractions : List) -> None:
+        if len(attractions) == 1:
+            self.target = attractions[0]
+            return
+
         if self.type == Type.NAIVE:
             lq_attractions = self.get_lq_attractions(attractions)
             distances = self.get_distances(lq_attractions)
@@ -137,9 +141,24 @@ class Agent:
             # TODO pick attraction according to distance and qtime
             pass
         elif self.type == Type.EXTRAPOLATE:
-            # TODO pick attraction with the lowest future q accoding to the history of the q:s
-            pass
-        
+            # picks attraction with the lowest future q according to the queue history
+            distances = self.get_distances(attractions)
+            expected_future_queue_times = [0]*len(distances)
+            for i in range(len(distances)):
+                travel_time = distances[i] / self.velocity
+                expected_future_queue_times[i] = attractions[i].get_extrapolated_queue_time(travel_time)
+            
+            shortest_idx = 0
+            for i in range(1, len(attractions)):
+                if expected_future_queue_times[i] < expected_future_queue_times[shortest_idx]:
+                    shortest_idx = i
+                elif expected_future_queue_times[i] == expected_future_queue_times[shortest_idx]:
+                    # if they are equal, only set to i if i is closer
+                    if distances[i] < distances[shortest_idx]:
+                        shortest_idx = i
+
+            self.target = attractions[shortest_idx]
+            
         direction = self.target.get_position() - self.position
         self.direction = direction / np.linalg.norm(direction)
 

@@ -28,6 +28,7 @@ class Attraction:
         else:
             self.__extrapolate_pts = extrapolate_pts    # how many points to extrapolate from
         self.__extrapolated_queue_time_polynomial = np.polyfit(x=[1,2], y=[0,0], deg=1)
+        self.__global_time = 1  # used in get_extrapolated_queue_time to calculate the future time
 
     def get_position(self):
         return self.__position
@@ -135,9 +136,11 @@ class Attraction:
 
         x_vals = list(range(global_time - len(pts) + 1, global_time + 1))
         self.__extrapolated_queue_time_polynomial = np.polyfit(x_vals, pts, deg=1)
+        self.__global_time = global_time
 
-    def get_extrapolated_queue_time(self, future_time):
-        future_queue_time = int(round(np.polyval(self.__extrapolated_queue_time_polynomial, future_time)))
+    def get_extrapolated_queue_time(self, travel_time):
+        future_time = self.__global_time + travel_time  # set by __extrapolate_queue_time
+        future_queue_time = np.polyval(self.__extrapolated_queue_time_polynomial, future_time)
         if future_queue_time < 0:
             future_queue_time = 0
         return future_queue_time
