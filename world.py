@@ -8,21 +8,24 @@ class World:
     def __init__(self, agents, attractions) -> None:
         self.__agents = agents
         self.__attractions = attractions
+        self.fig, self.ax = plt.subplots()
+        plt.draw()
         
     def draw(self):
-        plt.xlim(0, 700)
-        plt.ylim(0, 700)
-        plt.clf()
+        self.ax.clear()
+        #self.ax.set_xlim(100,400)
+        #self.ax.set_ylim(200,600)
         self.draw_agents()
         self.draw_attractions()
-        plt.show()
+        self.fig.canvas.draw_idle()
+        plt.pause(0.1)
         # TODO https://stackoverflow.com/questions/42722691/python-matplotlib-update-scatter-plot-from-a-function
 
     def draw_agents(self):
         for agent in self.__agents:
             if agent.get_state() == AgentState.IN_PARK:
                 position = agent.get_position()
-                plt.scatter(position[0], position[1], s=self.ATTRACTION_SIZE*agent.get_group_size()/4, color='b')
+                self.ax.scatter(position[0], position[1], s=self.ATTRACTION_SIZE*agent.get_group_size()/4, color='b')
         
 
     def draw_attractions(self):
@@ -31,5 +34,5 @@ class World:
             queue_size = attration.get_queue_size()
             ratio = min(1, queue_size/self.RED_COUNT)
             # c = [R, G, B]
-            plt.scatter(position[0], position[1], s=self.ATTRACTION_SIZE, c=[[ratio, 1-ratio, 0]], marker='s')
+            self.ax.scatter(position[0], position[1], s=self.ATTRACTION_SIZE, c=[[ratio, 1-ratio, 0]], marker='s')
         
