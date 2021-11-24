@@ -29,8 +29,10 @@ class Attraction:
             self.__queue.append(agent)
 
     def get_queue_size(self):
-        # TODO wrong size has to take into account group size
-        return len(self.__queue)
+        size = 0
+        for agent in self.__queue:
+            size += agent.get_group_size()
+        return size
 
     def advance_queue(self, global_time):
         # this function modifies the internal variables

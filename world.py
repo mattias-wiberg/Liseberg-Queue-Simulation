@@ -3,19 +3,15 @@ from agent import AgentState
 
 class World:
     ATTRACTION_SIZE = 50 # Size for plotting
-    RED_COUNT = 10 # Queue_size for when attractions should be red colored
+    RED_COUNT = 5 # Queue_size for when attractions should be red colored
 
     def __init__(self, agents, attractions) -> None:
         self.__agents = agents
         self.__attractions = attractions
-        plt.ion()
-        self.fig, self.ax = plt.subplots()
-        x, y = [],[]
-        self.sc = self.ax.scatter(x,y)
-        #plt.xlim(0, 10)
-        #plt.ylim(0, 10)
         
     def draw(self):
+        plt.xlim(0, 700)
+        plt.ylim(0, 700)
         plt.clf()
         self.draw_agents()
         self.draw_attractions()

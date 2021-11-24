@@ -28,11 +28,11 @@ attractions = []
 load_data('attraction_data.csv', attractions)
 agent1 = Agent((20,20), attractions)
 agent2 = Agent((200,1), attractions, 2)
-agent3 = Agent((300,150), attractions, 5)
+agent3 = Agent((300,150), attractions, 4)
 agents = [agent1, agent2, agent3]
 world = World(agents, attractions)
 world.draw()
-for i in range(50):
+for i in range(500):
     for agent in agents:
         agent.update(attractions)
 world.draw()
