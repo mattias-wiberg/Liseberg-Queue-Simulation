@@ -18,7 +18,7 @@ class World:
         self.draw_agents()
         self.draw_attractions()
         self.fig.canvas.draw_idle()
-        plt.pause(0.1)
+        plt.pause(1/60)
         # TODO https://stackoverflow.com/questions/42722691/python-matplotlib-update-scatter-plot-from-a-function
 
     def draw_agents(self):

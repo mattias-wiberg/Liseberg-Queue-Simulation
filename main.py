@@ -27,15 +27,14 @@ def load_data(path, attractions):
 
 attractions = []
 load_data('attraction_data.csv', attractions)
-agent1 = Agent((20,20), attractions)
-agent2 = Agent((200,1), attractions, 2)
-agent3 = Agent((300,150), attractions, 4)
-agents = [agent1, agent2, agent3]
+agents = []
+for i in range(20):
+    agents.append(Agent(tuple(np.random.random(2)*500),attractions,np.random.randint(4)+1))
 world = World(agents, attractions)
 world.draw()
 for i in range(400):
     for agent in agents:
         agent.update(attractions)
-        if i % 20 == 0:
-            world.draw()
+    if i % 20 == 0:
+        world.draw()
 plt.waitforbuttonpress()
