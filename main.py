@@ -2,6 +2,7 @@ from agent import Agent
 from attraction import Attraction
 from world import World
 import numpy as np
+from matplotlib import pyplot as plt
 
 def load_data(path, attractions):
     data = np.genfromtxt(path, delimiter=',', dtype=("U20",float,float,int,int,int))
@@ -32,8 +33,9 @@ agent3 = Agent((300,150), attractions, 4)
 agents = [agent1, agent2, agent3]
 world = World(agents, attractions)
 world.draw()
-for i in range(500):
+for i in range(400):
     for agent in agents:
         agent.update(attractions)
-world.draw()
-
+        if i % 20 == 0:
+            world.draw()
+plt.waitforbuttonpress()
