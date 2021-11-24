@@ -52,3 +52,15 @@ def plot(a, data):
 
 load_data("attraction_data.csv")
 
+#%%
+import glob
+from PIL import Image
+
+# filepaths
+fp_in = "./save/*.png"
+fp_out = "./image.gif"
+
+# https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#gif
+img, *imgs = [Image.open(f) for f in glob.glob(fp_in).sort(key = int)]
+img.save(fp=fp_out, format='GIF', append_images=imgs,
+         save_all=True, duration=2, loop=0)

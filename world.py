@@ -1,10 +1,14 @@
 from matplotlib import pyplot as plt
 from agent import State
+import os
+import glob
+import imageio
 
 class World:
     ATTRACTION_SIZE = 50 # Size for plotting
     RED_COUNT = 5*60 # Queue_size for when attractions should be red colored
     FPS = 60
+    SAVE_PATH = './save/'
 
     def __init__(self, agents=[], attractions=[]) -> None:
         self.__agents = agents
@@ -12,6 +16,11 @@ class World:
         self.history = []
         self.fig, self.ax = plt.subplots()
         plt.draw()
+
+    def clear_exports(self):
+        files = glob.glob(self.SAVE_PATH + '*')
+        for f in files:
+            os.remove(f)
 
     def get_history(self):
         return self.history
@@ -27,18 +36,26 @@ class World:
                 n_out_of_park += 1
         return n_out_of_park == len(self.__agents)
 
-    def save(self):
+    def save(self, t, export=False):
         self.history.append((self.__agents.copy(), self.__attractions.copy()))
+        if export:
+            name = f'{t}.png'
+            plt.savefig(self.SAVE_PATH+name)
 
-    def draw(self):
+    def build_gif(self):
+        files = glob.glob(self.SAVE_PATH + '*')
+        with imageio.get_writer('mygif.gif', mode='I') as writer:
+            for filename in files:
+                image = imageio.imread(filename)
+                writer.append_data(image)
+
+    def draw(self, t):
         self.ax.clear()
-        #self.ax.set_xlim(100,400)
-        #self.ax.set_ylim(200,600)
         self.draw_agents()
         self.draw_attractions()
         self.fig.canvas.draw_idle()
+        self.ax.set_title("t= " + str(t))
         plt.pause(1/self.FPS)
-        # TODO https://stackoverflow.com/questions/42722691/python-matplotlib-update-scatter-plot-from-a-function
 
     def draw_agents(self):
         for agent in self.__agents:

@@ -110,12 +110,9 @@ class Agent:
         
     def move(self) -> None:
         to_visit = list(set(self.attractions) - set(self.visited))
-        if len(to_visit) != 0:
-            if not self.commited:
-                self.update_target(to_visit)
-            self.position += self.direction * self.velocity
-        else:
-            self.set_state(State.OUT_OF_PARK)
+        if not self.commited:
+            self.update_target(to_visit)
+        self.position += self.direction * self.velocity
         
          
     def update_target(self, attractions : List) -> None:
