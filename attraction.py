@@ -144,7 +144,8 @@ class Attraction:
         # advance the queue until it is empty
         while len(fake_queue) > 0:
             self.__fake_advance_queue(fake_global_time, fake_queue)
-            fake_global_time += self.__wagon_arrival_time
+            if len(fake_queue) != 0:
+                fake_global_time += self.__wagon_arrival_time
 
         queue_time = fake_global_time - global_time
         self.__set_queue_time(queue_time)
