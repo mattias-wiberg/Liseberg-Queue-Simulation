@@ -2,24 +2,23 @@ from wagon import Wagon
 import numpy as np
 
 class Attraction:
-    __check_back_limit = 5    # how far back to check in the q to fill up odd spots
-
-    def __init__(self, name:str, position:tuple, wagon_size:int, wagon_ride_time:float, n_wagons:int, attraction_coeff:float = 1):
+    def __init__(self, name:str, position:tuple, wagon_size:int, wagon_ride_time:float, n_wagons:int, attraction_coeff:float = 1, 
+                        check_back_limit:int = 5, delay:int = 0):        
         self.__name = name
-        self.__attraction_coeff = attraction_coeff
+
         self.__position = np.array(position, dtype=np.float64)
 
-        self.__wagon_arrival_time = round(wagon_ride_time/n_wagons)
         self.__wagon_size = wagon_size
+        self.__wagon_arrival_time = round(wagon_ride_time/n_wagons)
         self.__n_wagons = n_wagons
         self.__wagons = [Wagon() for i in range(n_wagons)]
+
+        self.__attraction_coeff = attraction_coeff #(not implemented)
+        self.__check_back_limit = check_back_limit # how far back to check in the q to fill up odd spots
         
         self.__queue = []
-        self.__queue_time = 0
-        self.__queue_time_history = []
-
-    def get_queue_time(self):
-        return self.__queue_time
+        self.__queue_time_history = [0]
+        self.__delay = delay
 
     def get_position(self):
         return self.__position
@@ -41,7 +40,9 @@ class Attraction:
             current_wagon_idx = int((global_time/self.__wagon_arrival_time) % self.__n_wagons)
             current_wagon = self.__wagons[current_wagon_idx]
             leaving_agent = current_wagon.clear()
-            # TODO: update the leaving agent's state
+            if len(leaving_agent) > 0:
+                # TODO: update the leaving agent's state
+                pass
         else:
             # no arriving wagon so nothing to update
             return
@@ -108,26 +109,42 @@ class Attraction:
 
         return fake_queue
 
+    def __set_queue_time(self, time):
+        if self.__delay > 0:
+            if len(self.__queue_time_history) == self.__delay:
+                self.__queue_time_history.pop(0)
+            self.__queue_time_history.append(time)
+        else:
+            self.__queue_time_history = [time]
+
 
     def calc_queue_time(self, global_time):
+        if len(self.__queue) == 0:
+            # there is no queue, so set the queue time to zero
+            self.__set_queue_time(0)
+            return
+        
         fake_queue = self.__queue.copy()
         fake_global_time = global_time
 
         # calculate nearest modulo time
         if (fake_global_time % self.__wagon_arrival_time) == 0:
-            to_add = 0
+            # queue has just been advanced and a wagon filled meaning that we need 
+            # to wait for the next wagon to arrive before we can advance the queue 
+            to_add = self.__wagon_arrival_time
         else:
             to_add = self.__wagon_arrival_time - (fake_global_time % self.__wagon_arrival_time)
 
         fake_global_time += to_add
 
+        # advance the queue until it is empty
         while len(fake_queue) > 0:
             self.__fake_advance_queue(fake_global_time, fake_queue)
             fake_global_time += self.__wagon_arrival_time
 
-        self.__queue_time = fake_global_time - global_time
-        self.__queue_time_history.append(self.__queue_time)
-        #return self.__queue_time
-        return fake_global_time
+        queue_time = fake_global_time - global_time
+        self.__set_queue_time(queue_time)
+        
 
-
+    def get_queue_time(self):
+        return self.__queue_time_history[0]
