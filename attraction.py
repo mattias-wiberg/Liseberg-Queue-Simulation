@@ -1,10 +1,11 @@
+from numpy.testing._private.utils import raises
 from wagon import Wagon
 import numpy as np
 from agent import State
 
 class Attraction:
     def __init__(self, name:str, position:tuple, wagon_size:int, wagon_ride_time:float, n_wagons:int, attraction_coeff:float = 1, 
-                        check_back_limit:int = 5, delay:int = 0):        
+                        check_back_limit:int = 5, delay:int = 0, extrapolate_pts:int = 2):        
         self.__name = name
 
         self.__position = np.array(position, dtype=np.float64)
@@ -21,6 +22,12 @@ class Attraction:
         self.__queue_time_history = [0]
         self.__delay = delay
         self.__queue_size = 0   # takes agent group size into account # TODO: remove later (shouldn't be used anywhere)
+
+        if extrapolate_pts < 2:
+            raise Exception("__init__ in attraction.py: extrapolate_pts argument is less than 2. Cannot extrapolate from less than two points.")
+        else:
+            self.__extrapolate_pts = extrapolate_pts    # how many points to extrapolate from
+        self.__extrapolated_queue_time_polynomial = np.polyfit(x=[1,2], y=[0,0], deg=1)
 
     def get_position(self):
         return self.__position
@@ -113,6 +120,28 @@ class Attraction:
 
         return fake_queue
 
+    def __extrapolate_queue_time(self, global_time):
+        if len(self.__queue_time_history) == 1:
+            # only one point (the initial zero), so cannot extrapolate from only one point
+            return
+        
+        idx_start_pt = len(self.__queue_time_history) - self.__delay - self.__extrapolate_pts 
+        idx_end_pt = len(self.__queue_time_history) - self.__delay
+
+        if idx_start_pt < 0:
+            pts = self.__queue_time_history
+        else:
+            pts = self.__queue_time_history[idx_start_pt:idx_end_pt]
+
+        x_vals = list(range(global_time - len(pts) + 1, global_time + 1))
+        self.__extrapolated_queue_time_polynomial = np.polyfit(x_vals, pts, deg=1)
+
+    def get_extrapolated_queue_time(self, future_time):
+        future_queue_time = int(round(np.polyval(self.__extrapolated_queue_time_polynomial, future_time)))
+        if future_queue_time < 0:
+            future_queue_time = 0
+        return future_queue_time
+
     def calc_queue_time(self, global_time):
         if len(self.__queue) == 0:
             # there is no queue, so set the queue time to zero
@@ -140,7 +169,7 @@ class Attraction:
 
         queue_time = fake_global_time - global_time
         self.__queue_time_history.append(queue_time)
-        
+        self.__extrapolate_queue_time(global_time)
 
     def get_queue_time(self):
         # 0: oldest queue time

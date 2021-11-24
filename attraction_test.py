@@ -34,7 +34,7 @@ agent5 = Agent((1,1), attractions, 4)
 agent6 = Agent((1,1), attractions, 2)
 
 
-attraction1 = Attraction(name="flumeride", attraction_coeff=1.0, wagon_size=4, wagon_ride_time=210, n_wagons=28, position=(1,1), delay=5)
+attraction1 = Attraction(name="flumeride", attraction_coeff=1.0, wagon_size=4, wagon_ride_time=210, n_wagons=28, position=(1,1), delay=0, extrapolate_pts=5)
 
 attraction1.add_to_queue(agent1)
 attraction1.add_to_queue(agent2)
@@ -48,7 +48,8 @@ queue_size = attraction1.get_queue_size()
 while True:
     attraction1.advance_queue(global_time)
     attraction1.calc_queue_time(global_time)
-    print(f'Expected queue empty time: {attraction1.get_queue_time()}')
+    print(f'[{global_time}] Queue time: {attraction1.get_queue_time()}')
+    print(f'[{global_time}] Expected queue time at {global_time+5} : {attraction1.get_extrapolated_queue_time(global_time+5)}')
     queue_size = attraction1.get_queue_size()
     if queue_size == 0:
         break
