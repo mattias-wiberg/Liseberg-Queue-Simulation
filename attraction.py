@@ -13,12 +13,13 @@ class Attraction:
         self.__n_wagons = n_wagons
         self.__wagons = [Wagon() for i in range(n_wagons)]
 
-        self.__attraction_coeff = attraction_coeff #(not implemented)
-        self.__check_back_limit = check_back_limit # how far back to check in the q to fill up odd spots
+        self.__attraction_coeff = attraction_coeff  # (not implemented)
+        self.__check_back_limit = check_back_limit  # how far back to check in the q to fill up odd spots
         
         self.__queue = []
         self.__queue_time_history = [0]
         self.__delay = delay
+        self.__queue_size = 0   # takes agent group size into account
 
     def get_position(self):
         return self.__position
@@ -26,12 +27,10 @@ class Attraction:
     def add_to_queue(self, *agents):
         for agent in agents:
             self.__queue.append(agent)
+            self.__queue_size += agent.get_group_size()
 
     def get_queue_size(self):
-        size = 0
-        for agent in self.__queue:
-            size += agent.get_group_size()
-        return size
+        return self.__queue_size
 
     def advance_queue(self, global_time):
         # this function modifies the internal variables
@@ -57,6 +56,7 @@ class Attraction:
             # fill up the wagon
             agent = self.__queue.pop(0)
             places_left -= agent.get_group_size()
+            self.__queue_size -= agent.get_group_size()
             current_wagon.add_agent(agent)
             # TODO: update agent state
             
@@ -73,6 +73,7 @@ class Attraction:
                 if len(self.__queue) > i and self.__queue[i].get_group_size() <= places_left:
                     agent = self.__queue.pop(i)
                     places_left -= agent.get_group_size()
+                    self.__queue_size -= agent.get_group_size()
                     current_wagon.add_agent(agent)
                     # TODO: update agent state
                     if places_left == 0:
