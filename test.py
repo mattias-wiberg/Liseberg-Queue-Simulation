@@ -13,20 +13,23 @@ def load_data(path):
     org_x = R * np.cos(np.deg2rad(lat)) * np.cos(np.deg2rad(lon))
     org_y = R * np.cos(np.deg2rad(lat)) * np.sin(np.deg2rad(lon))
 
-    for row in data[1:]:
+    for row in data[0:]:
         name = row[0]
         lat = row[1]
         lon = row[2]
         x = R * np.cos(np.deg2rad(lat)) * np.cos(np.deg2rad(lon))
         y = R * np.cos(np.deg2rad(lat)) * np.sin(np.deg2rad(lon))
-        plt.scatter(x-org_x,y-org_y)
         names.append(name)
+        x,y = np.array([[0, 1],[-1, 0]]).dot([x-org_x,y-org_y])
+        plt.scatter(x, y)
+    plt.axis('equal')
+    plt.grid(False)
     plt.legend(names)
     plt.show()
         
 
 
-
+#
 fig, ax = plt.subplots()    
 
 data = np.cumsum(np.random.normal(size=100)) #some list of data

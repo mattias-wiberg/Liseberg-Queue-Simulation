@@ -39,23 +39,25 @@ class World:
     def save(self, t, export=False):
         self.history.append((self.__agents.copy(), self.__attractions.copy()))
         if export:
+            t = format(t, "020b")
             name = f'{t}.png'
             plt.savefig(self.SAVE_PATH+name)
 
     def build_gif(self):
+        frames = []
         files = glob.glob(self.SAVE_PATH + '*')
-        with imageio.get_writer('mygif.gif', mode='I') as writer:
-            for filename in files:
-                image = imageio.imread(filename)
-                writer.append_data(image)
+        for filename in files:
+            frames.append(imageio.imread(filename))
+        imageio.mimsave("test.gif", frames, format='GIF', fps=30)
 
     def draw(self, t):
         self.ax.clear()
+        self.ax.axis('equal')
         self.draw_agents()
         self.draw_attractions()
-        self.fig.canvas.draw_idle()
+        #self.fig.canvas.draw_idle()
         self.ax.set_title("t= " + str(t))
-        plt.pause(1/self.FPS)
+        #plt.pause(1/self.FPS)
 
     def draw_agents(self):
         for agent in self.__agents:
