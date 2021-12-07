@@ -6,7 +6,7 @@ import imageio
 
 class World:
     ATTRACTION_SIZE = 50 # Size for plotting
-    RED_COUNT = 5*60 # Queue_size for when attractions should be red colored
+    RED_COUNT = 40*60 # Queue_size for when attractions should be red colored
     FPS = 60
     SAVE_PATH = './save/'
 
