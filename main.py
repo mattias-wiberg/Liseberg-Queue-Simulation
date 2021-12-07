@@ -74,7 +74,7 @@ def run_model():
 
 
 if __name__ == '__main__':
-    do_profiling = True
+    do_profiling = False
     if do_profiling:
         with cProfile.Profile() as pr:
             run_model()

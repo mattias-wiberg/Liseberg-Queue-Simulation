@@ -23,13 +23,14 @@ class Agent:
     visibility = 20
     congestion_radius = 5
 
-    def __init__(self, position:tuple, attractions : List, group_size = 1, type=Type.NAIVE, queue_prob = 1) -> None:
+    def __init__(self, position:tuple, attractions : List, group_size = 1, type=Type.NAIVE, queue_prob = 1, commit_prob = 0.038) -> None:
         self.id = next(self.id_count)
         self.attractions = attractions
         self.position = np.array(position, dtype=np.float64)
         self.group_size = group_size
         self.visited = []
         self.queue_prob = queue_prob
+        self.commit_prob = commit_prob
         self.velocity = 1.42 * (11-group_size)/10 # Walking speed
         self.direction = np.array([0,0], dtype=np.float64)
         self.set_type(type)
@@ -62,15 +63,15 @@ class Agent:
         if state == State.IN_PARK:
             to_visit = list(set(self.attractions) - set(self.visited))
             self.update_target(to_visit)
-
         self.state = state
 
-    def add_visited(self, attraction):
+    def add_visited(self, attraction): # Call when visited an attraction
         self.visited.append(attraction)
         if len(self.attractions) - len(self.visited) == 0: # Visited all
             self.set_state(State.OUT_OF_PARK)
         else:
             self.set_state(State.IN_PARK)
+            self.commited = False
 
     
     # Returns the attraction with the lowest queue time.
@@ -113,6 +114,8 @@ class Agent:
         if len(to_visit) != 0:
             if not self.commited:
                 self.update_target(to_visit)
+                if self.commit_prob < random.random():
+                    self.commited = True
             self.position += self.direction * self.velocity
         else:
             self.set_state(State.OUT_OF_PARK)
