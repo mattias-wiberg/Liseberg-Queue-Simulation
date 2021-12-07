@@ -3,3 +3,5 @@ __pycache__
 *.pyc
 *.pyc
 *.png
+profiling_stats.txt
+.prof_stats
