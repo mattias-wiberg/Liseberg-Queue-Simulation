@@ -141,12 +141,18 @@ class Agent:
         elif self.type == Type.GREEDY:
             distances = self.get_distances(attractions)
             self.target = attractions[distances.index(min(distances))]
-            pass
         elif self.type == Type.SMART:
             # TODO pick attraction according to distance and qtime
-            pass
+            # ratio = 1/(a*travel_time + b*queue_time)
+            a = 0.5
+            b = 0.5
+            distances = self.get_distances(attractions)
+            travel_times = list(map(lambda distance : distance / self.velocity, distances))
+            queue_times = list(map(lambda attraction : attraction.get_queue_time(), attractions))
+            ratios = list(map(lambda element : 1/(a*element[0] + b*element[1]), zip(travel_times, queue_times)))
+            self.target = attractions[ratios.index(max(ratios))]
+            
         elif self.type == Type.EXTRAPOLATE:
-            # TODO: bugfix, agents getting stuck between attractions undecided
             # picks attraction with the lowest future q according to the queue history
             distances = self.get_distances(attractions)
             expected_future_queue_times = [0]*len(distances)
