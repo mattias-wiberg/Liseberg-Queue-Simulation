@@ -9,6 +9,7 @@ from agent import Agent
 from spawn import Spawn
 from attraction import Attraction
 import pickle
+import copy
 
 class World:
     ATTRACTION_SIZE = 50 # Size for plotting
@@ -72,7 +73,7 @@ class World:
         return n_out_of_park == len(self.agents)
 
     def add_to_history(self):
-        self.history.append((self.agents.copy(), self.attractions.copy()))
+        self.history.append((copy.deepcopy(self.agents),copy.deepcopy(self.attractions)))
 
     def dump(self):
         pickle.dump(self, open("pickles/world.p", "wb" ))

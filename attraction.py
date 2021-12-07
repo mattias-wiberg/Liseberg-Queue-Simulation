@@ -189,3 +189,20 @@ class Attraction:
 
     def get_avg_queue_time(self):
         return sum(self.__queue_time_history) / len(self.__queue_time_history)
+
+    def get_queue_time_history(self):
+        return self.__queue_time_history
+
+    def get_num_agents(self):
+        # for plotting purposes: count all the agents in the wagons and the queue
+        agents_in_queue = 0
+        for agent in self.__queue:
+            agents_in_queue += agent.get_group_size()
+        
+        agents_in_wagons = 0
+        for wagon in self.__wagons:
+            for agent in wagon.get_agents():
+                agents_in_wagons += agent.get_group_size()
+
+        return (agents_in_queue + agents_in_wagons)
+
