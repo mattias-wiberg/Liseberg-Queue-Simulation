@@ -31,11 +31,7 @@ def load_data(path):
 
 #
 fig, ax = plt.subplots()    
-
-data = np.cumsum(np.random.normal(size=100)) #some list of data
-
 ax.grid()
-
 def plot(a, data):
     data += np.cumsum(np.random.normal(size=100)+3e-2)
     X = np.c_[data[::2], data[1::2]]
@@ -53,19 +49,6 @@ def plot(a, data):
 #plt.show()
 
 
-load_data("attraction_data.csv")
-
-#%%
-import glob
-from PIL import Image
-
-# filepaths
-fp_in = "./save/*.png"
-fp_out = "./image.gif"
-
-# https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#gif
-img, *imgs = [Image.open(f) for f in glob.glob(fp_in).sort(key = int)]
-img.save(fp=fp_out, format='GIF', append_images=imgs,
-         save_all=True, duration=2, loop=0)
-
-# %%
+load_data("park_data.csv")
+plt.plot([1,2,3],[1,2,2])
+plt.show()
