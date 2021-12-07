@@ -29,8 +29,8 @@ class World:
         data = np.genfromtxt(path, delimiter=',', dtype=("U20","U20",float,float,int,int,int))
         R = 6371000 # World radius
         origin = data[0]
-        lat = origin[1]
-        lon = origin[2]
+        lat = origin[2]
+        lon = origin[3]
         org_x = R * np.cos(np.deg2rad(lat)) * np.cos(np.deg2rad(lon))
         org_y = R * np.cos(np.deg2rad(lat)) * np.sin(np.deg2rad(lon))
 
@@ -62,7 +62,7 @@ class World:
 
     def populate(self, n_agents, _type, _commit_prob) -> List:
         while self.n_agents < n_agents:
-            self.spawn_agent(self, _type, _commit_prob)
+            self.spawn_agent(_type, _commit_prob)
         return self.agents
 
     def clear_exports(self):
@@ -103,9 +103,9 @@ class World:
         self.draw_agents()
         self.draw_attractions()
         self.draw_spawns()
-        #self.fig.canvas.draw_idle()
+        self.fig.canvas.draw_idle()
         self.ax.set_title("t= " + str(t))
-        #plt.pause(1/self.FPS)
+        plt.pause(1/self.FPS)
 
     def draw_agents(self):
         for agent in self.agents:
@@ -115,8 +115,8 @@ class World:
         
     def draw_spawns(self):
         for spawn in self.spawns:
-            position = spawn.get_position()
-            self.ax.scatter(position[0], position[1], s=self.ATTRACTION_SIZE, c=[[170/250, 0, 255/250]], marker='t')
+            position = spawn.position
+            self.ax.scatter(position[0], position[1], s=self.ATTRACTION_SIZE, c=[[170/250, 0, 1]], marker='^')
 
     def draw_attractions(self):
         for attraction in self.attractions:

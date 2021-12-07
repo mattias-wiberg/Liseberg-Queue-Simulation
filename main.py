@@ -9,7 +9,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 import cProfile
 from pstats import Stats, SortKey
-import pickle
 np.random.seed(10)
 random.seed(10)
 
