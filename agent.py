@@ -114,7 +114,7 @@ class Agent:
         if len(to_visit) != 0:
             if not self.commited:
                 self.update_target(to_visit)
-                if self.commit_prob < random.random():
+                if random.random() < self.commit_prob:
                     self.commited = True
             self.position += self.direction * self.velocity
         else:
