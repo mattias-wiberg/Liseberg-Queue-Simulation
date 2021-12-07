@@ -1,15 +1,13 @@
-
 from matplotlib.pyplot import angle_spectrum
 from agent import Type
 from world import World
-import multiprocessing as mp
+
 
 class Model:
     def __init__(self, commit_prob=0.005, mix = []) -> None:
         # TODO: Structure for type mix % of spawn prob
         self.world = World()
         self.commit_prob = commit_prob
-        pass
 
     def run_model(self):
         self.world.load_park("park_data.csv")
@@ -23,10 +21,10 @@ class Model:
             for attraction in self.world.attractions:
                 attraction.advance_queue(t)
                 attraction.calc_queue_time(t)
-            #for agent in self.world.agents:
-            #    agent.update()
-            with mp.Pool(mp.cpu_count()) as pool:
-                pool.map(lambda x:x.update(), self.world.agents)
+            for agent in self.world.agents:
+                agent.update()
+            #with mp.Pool(mp.cpu_count()) as pool:
+            #    pool.map(fun, self.world.agents)
             if t % 10 == 0:
                 print(t)
                 #self.world.draw(t, False)
