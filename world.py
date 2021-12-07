@@ -55,23 +55,14 @@ class World:
 
     def spawn_agent(self, _type, _commit_prob) -> Agent:
         n = np.random.randint(1,5)
-        agent = Agent(np.random.choice(self.spawns).position, self.attractions, n, type=_type, commit_prob=_commit_prob)
         self.n_agents += n
-        self.agents.append(agent)
-        return agent
+        self.agents.append(Agent(np.random.choice(self.spawns).position, self.attractions, n, type=_type, commit_prob=_commit_prob))
+        return self.agents[-1]
 
     def populate(self, n_agents, _type, _commit_prob) -> List:
         while self.n_agents < n_agents:
             self.spawn_agent(_type, _commit_prob)
         return self.agents
-
-    def clear_exports(self):
-        files = glob.glob(self.SAVE_PATH + '*')
-        for f in files:
-            os.remove(f)
-
-    def get_history(self):
-        return self.history
 
     def park_empty(self):
         n_out_of_park = 0
@@ -80,32 +71,40 @@ class World:
                 n_out_of_park += 1
         return n_out_of_park == len(self.agents)
 
-    def save(self, t, export=False):
+    def add_to_history(self):
         self.history.append((self.agents.copy(), self.attractions.copy()))
-        if export:
-            t = format(t, "020b")
-            name = f'{t}.png'
-            plt.savefig(self.SAVE_PATH+name)
 
     def dump(self):
         pickle.dump(self, open("pickles/world.p", "wb" ))
 
-    def build_gif(self):
+    def clear_pngs(self, path = SAVE_PATH):
+        files = glob.glob(path + '*')
+        for f in files:
+            os.remove(f)
+
+    def save_png(self, t):
+        t = format(t, "020b")
+        name = f'{t}.png'
+        plt.savefig(self.SAVE_PATH+name)
+
+    def build_gif(self, name="new_gif.gif", path = SAVE_PATH):
         frames = []
-        files = glob.glob(self.SAVE_PATH + '*')
+        files = glob.glob(path + '*')
         for filename in files:
             frames.append(imageio.imread(filename))
-        imageio.mimsave("test.gif", frames, format='GIF', fps=30)
+        imageio.mimsave(name, frames, format='GIF', fps=30)
 
-    def draw(self, t):
+    def draw(self, t, draw_continuously=True):
         self.ax.clear()
         self.ax.axis('equal')
         self.draw_agents()
         self.draw_attractions()
         self.draw_spawns()
-        self.fig.canvas.draw_idle()
         self.ax.set_title("t= " + str(t))
-        plt.pause(1/self.FPS)
+
+        if draw_continuously:
+            self.fig.canvas.draw_idle()
+            plt.pause(1/self.FPS)
 
     def draw_agents(self):
         for agent in self.agents:
@@ -126,3 +125,5 @@ class World:
             # c = [R, G, B]
             self.ax.scatter(position[0], position[1], s=self.ATTRACTION_SIZE, c=[[ratio, 1-ratio, 0]], marker='s')
         
+    def get_history(self):
+        return self.history

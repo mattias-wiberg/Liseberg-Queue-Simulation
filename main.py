@@ -1,12 +1,6 @@
 import random
-from typing import List
-from agent import Agent, Type
-from attraction import Attraction
 from model import Model
-from spawn import Spawn
-from world import World
 import numpy as np
-from matplotlib import pyplot as plt
 import cProfile
 from pstats import Stats, SortKey
 np.random.seed(10)
