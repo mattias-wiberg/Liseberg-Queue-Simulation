@@ -73,7 +73,7 @@ class World:
         return n_out_of_park == len(self.agents)
 
     def add_to_history(self):
-        self.history.append((copy.deepcopy(self.agents),copy.deepcopy(self.attractions)))
+        self.history.append((copy.copy(self.agents), list(map(lambda attraction : attraction.get_shallow_copy(), self.attractions))))
 
     def dump(self, name):
         pickle.dump(self, open("pickles/"+name+".p", "wb" ))

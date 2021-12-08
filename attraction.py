@@ -2,6 +2,7 @@ from numpy.testing._private.utils import raises
 from wagon import Wagon
 import numpy as np
 from agent import State
+import copy
 
 class Attraction:
     def __init__(self, name:str, position:tuple, wagon_size:int, wagon_ride_time:float, n_wagons:int, attraction_coeff:float = 1, 
@@ -199,10 +200,27 @@ class Attraction:
         for agent in self.__queue:
             agents_in_queue += agent.get_group_size()
         
-        agents_in_wagons = 0
+        agents_in_wagons_count = 0
         for wagon in self.__wagons:
-            for agent in wagon.get_agents():
-                agents_in_wagons += agent.get_group_size()
+            for agent in wagon.agents_in_wagon:
+                agents_in_wagons_count += agent.get_group_size()
 
-        return (agents_in_queue + agents_in_wagons)
+        return (agents_in_queue + agents_in_wagons_count)
+    
+    def get_copied_wagons(self):
+        new_wagons = []
+        for iWagon in range(len(self.__wagons)):
+            agents_in_wagon_list = []
+            for jAgent in range(len(self.__wagons[iWagon].agents_in_wagon)):
+                agents_in_wagon_list.append(copy.copy(self.__wagons[iWagon].agents_in_wagon[jAgent]))
+            new_wagon = Wagon()
+            new_wagon.agents_in_wagon = copy.copy(agents_in_wagon_list)
+            new_wagons.append(new_wagon)
+        return new_wagons
+
+    def get_shallow_copy(self):
+        copied_attraction = copy.copy(self)
+        copied_attraction.__wagons = self.get_copied_wagons()
+        copied_attraction.__queue = copy.copy(self.__queue)
+        return copied_attraction
 
