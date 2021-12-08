@@ -222,5 +222,6 @@ class Attraction:
         copied_attraction = copy.copy(self)
         copied_attraction.__wagons = self.get_copied_wagons()
         copied_attraction.__queue = copy.copy(self.__queue)
+        copied_attraction.__queue_time_history = [self.__queue_time_history[-1]]
         return copied_attraction
 

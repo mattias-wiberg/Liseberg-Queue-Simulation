@@ -109,7 +109,7 @@ class Agent:
             if self.at_target():
                 self.queue()
             elif not self.proximity_decision and self.target_in_view():
-                if random.random() > self.queue_prob and self.target.get_queue_time_history()[-1] >= self.expected_qtime*2:
+                if (len(self.attractions) - len(self.visited) != 1) and random.random() > self.queue_prob and self.target.get_queue_time_history()[-1] >= self.expected_qtime*2:
                     to_visit = list((set(self.attractions) - set(self.visited))-set([self.target])) 
                     self.update_target(to_visit) # Pick new target 
                     

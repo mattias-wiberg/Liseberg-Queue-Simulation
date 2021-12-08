@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 class Statistics():
     def __init__(self, world):
@@ -6,14 +7,21 @@ class Statistics():
         self.attraction_names = ["Helix", "AtmosFear", "Lisebergsbanan", "Loke", "Balder", 
         "Valkyria", "Mechanica", "FlumeRide", "Hanghai", "Aerospin", "Slänggungan"] 
         # pickle has trouble with non-ASCII characters, so that is why the names are here
+        self.time_values = list(range(len(self.world.get_history())))
+        self.history = self.world.get_history()
+        self.fig, self.ax = plt.subplots()
+        plt.draw()
 
     def plot_queue_time_per_attraction(self):
-        attractions = self.world.get_history()[-1][1]
-        time_values = list(range(len(attractions[0].get_queue_time_history())))
+        queue_time_history = []
+        for time_step in range(len(self.time_values)):
+            attractions = self.history[time_step][1]
+            queue_time_history.append(list(map(lambda attraction:attraction.get_queue_time_history()[-1], attractions)))
+        queue_time_history = np.array(queue_time_history)
 
         plt.clf()
-        for i, attraction in enumerate(attractions):
-            plt.plot(time_values, attraction.get_queue_time_history(), label = self.attraction_names[i])
+        for i, attraction_name in enumerate(self.attraction_names):
+            plt.plot(self.time_values, queue_time_history[:,i], label = attraction_name)
 
         plt.xlabel('Time Step [s]')
         plt.ylabel('Queue Time [s]')
@@ -24,19 +32,21 @@ class Statistics():
     def plot_num_agents_per_attraction(self):
         
         num_agents_history = []
-        for time_step in self.world.get_history():
-            attractions = time_step[1]
-            num_agents = []
-            for attraction in attractions:
-                num_agents.append(attraction.get_num_agents())
+        for time_step in range(len(self.time_values)):
+            attractions = self.history[time_step][1]
+            num_agents = list(map(lambda attraction:attraction.get_num_agents(), attractions))
             num_agents_history.append(num_agents)
-            
-            #num_agents.append(list(map(lambda attraction : attraction.get_num_agents(), attractions)))
-        
+        num_agents_history = np.array(num_agents_history)
 
-        #num_agents = list(map(lambda time_step : list(map(lambda attraction : attraction.get_num_agents(), time_step[1])), self.world.get_history()))
-        #num_agents = list(map(lambda time_step : time_step[1].get_num_agents(), self.world.get_history()))
+        plt.clf()
+        for i, attraction_name in enumerate(self.attraction_names):
+            plt.plot(self.time_values, num_agents_history[:,i], label = attraction_name)
 
-        x = 5
+        plt.xlabel('Time Step [s]')
+        plt.ylabel('Number of Agents')
+        plt.title('Number of Agents Per Attraction')
+        plt.legend()
+        plt.show()
+
 
 
