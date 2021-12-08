@@ -3,6 +3,7 @@ from typing import List
 import numpy as np
 import random
 from enum import Enum
+import copy
 
 class State(Enum):
     IN_PARK = 1
@@ -197,3 +198,9 @@ class Agent:
     def target_in_view(self) -> bool:
         direction = self.target.get_position() - self.position
         return np.linalg.norm(direction) < self.view_range 
+
+    def shallow_copy(self):
+        copied_agent = copy.copy(self)
+        copied_agent.attractions = None
+        copied_agent.visited = copy.copy(self.visited)
+        return copied_agent
