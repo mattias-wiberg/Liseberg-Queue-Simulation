@@ -8,7 +8,7 @@ np.random.seed(10)
 random.seed(10)
 
 if __name__ == '__main__':
-    model = Model(n_agents=15000)
+    model = Model(n_agents=100, draw=True)
 
     do_profiling = False
     if do_profiling:
