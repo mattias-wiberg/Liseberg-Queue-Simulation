@@ -34,6 +34,7 @@ class Model:
         #self.world.draw(t)
         self.world.add_to_history()
         #self.world.build_gif()
+        self.world.dump("world")
         print(t)
         print(self.world.n_agents)
 
