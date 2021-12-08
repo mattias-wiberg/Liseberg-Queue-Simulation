@@ -9,7 +9,7 @@ random.seed(10)
 
 if __name__ == '__main__':
     #model = Model(mix=[(Type.RANDOM, 0.5),(Type.SMART, 0.5)])
-    model = Model(target_n_agents=1000, draw=True)
+    model = Model(target_n_agents=1000,mix=[(Type.RANDOM, 1)], draw=True, draw_interval=10)
 
     do_profiling = False
     if do_profiling:
