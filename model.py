@@ -4,15 +4,16 @@ from world import World
 
 
 class Model:
-    def __init__(self, commit_prob=0.005, mix = []) -> None:
+    def __init__(self, commit_prob=0.005, mix = [], n_agents=1000) -> None:
         # TODO: Structure for type mix % of spawn prob
         self.world = World()
+        self.n_agents = n_agents
         self.commit_prob = commit_prob
 
-    def run_model(self):
+    def run(self):
         self.world.load_park("park_data.csv")
 
-        self.world.populate(1000, Type.NAIVE, self.commit_prob)
+        self.world.populate(self.n_agents, Type.NAIVE, self.commit_prob)
         t = 1
         #self.world.clear_pngs()
         #self.world.draw(t)
@@ -23,8 +24,6 @@ class Model:
                 attraction.calc_queue_time(t)
             for agent in self.world.agents:
                 agent.update()
-            #with mp.Pool(mp.cpu_count()) as pool:
-            #    pool.map(fun, self.world.agents)
             if t % 10 == 0:
                 print(t)
                 #self.world.draw(t, False)

@@ -7,17 +7,13 @@ import multiprocessing as mp
 np.random.seed(10)
 random.seed(10)
 
-def fun(model):
-    model.run_model()
-
 if __name__ == '__main__':
-    models = [Model(0.001), Model(0.1), Model(0.01)]
+    model = Model(n_agents=15000)
 
     do_profiling = False
     if do_profiling:
         with cProfile.Profile() as pr:
-            with mp.Pool(mp.cpu_count) as pool:
-                pool.map_async(fun,models)
+            model.run()
 
         with open('profiling_stats.txt', 'w') as stream:
             stats = Stats(pr, stream=stream)
@@ -26,4 +22,4 @@ if __name__ == '__main__':
             stats.dump_stats('square.prof')
             stats.print_stats()
     else:
-        models[0].run_model()
+        model.run()
