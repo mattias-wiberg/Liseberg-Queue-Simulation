@@ -3,12 +3,13 @@ from model import Model
 import numpy as np
 import cProfile
 from pstats import Stats, SortKey
-import multiprocessing as mp
+from agent import Type
 np.random.seed(10)
 random.seed(10)
 
 if __name__ == '__main__':
-    model = Model(n_agents=100, draw=True)
+    #model = Model(mix=[(Type.RANDOM, 0.5),(Type.SMART, 0.5)])
+    model = Model(target_n_agents=1000, draw=True)
 
     do_profiling = False
     if do_profiling:

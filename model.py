@@ -1,25 +1,46 @@
-from matplotlib.pyplot import angle_spectrum
-from agent import Type
+import random
+from matplotlib.pyplot import angle_spectrum, gray
+from agent import Agent, Type
 from world import World
 
 
 class Model:
-    def __init__(self, commit_prob=0.005, mix = [], n_agents=1000, draw = False, draw_interval=5) -> None:
-        # TODO: Structure for type mix % of spawn prob
-        self.world = World()
-        self.n_agents = n_agents
+    def __init__(self, commit_prob=0.005, mix = [(Type.NAIVE, 1)], target_n_agents=1000, draw = False, draw_interval=5, queue_prob = 0.5, view_range=15) -> None:
         self.draw = draw
         self.draw_interval = draw_interval
-        self.commit_prob = commit_prob
+        self.mix = mix
+
+        types, probs = list(zip(*mix))
+        if sum(probs) != 1:
+            print("Error: Incorrect list of probabilities")
+        
+        world = World()
+        world.load_park("park_data.csv")
+        while world.n_agents < target_n_agents:
+            choice = random.random()
+            cum_prob = 0
+            for i in range(len(probs)):
+                cum_prob += probs[i]
+                if cum_prob > choice:
+                    type = types[i]
+                    break
+            world.spawn_agent(type, commit_prob, queue_prob, view_range)
+
+        fractions = {}
+        for type in types:
+            fractions[type] = 0
+        for agent in world.agents:
+            fractions[agent.type] += agent.get_group_size()/world.n_agents
+        
+        print("Population Fractions:")
+        for type in types:
+            print(type.name,":",round(fractions[type]*100,4),"%")
+        self.world = world
+        self.n_agents = world.n_agents
 
     def run(self):
-        self.world.load_park("park_data.csv")
-
-        self.world.populate(self.n_agents, Type.RANDOM, self.commit_prob)
         t = 1
-        #self.world.clear_pngs()
         if self.draw: self.world.draw(t)
-        #self.world.save_png(t)
         while not self.world.park_empty():
             for attraction in self.world.attractions:
                 attraction.advance_queue(t)
@@ -29,13 +50,11 @@ class Model:
             if t % self.draw_interval == 0:
                 print(t)
                 if self.draw: self.world.draw(t)
-                #self.world.save_png(t)
                 self.world.add_to_history()
             t += 1
 
         if self.draw: self.world.draw(t)
         self.world.add_to_history()
-        #self.world.build_gif()
         self.world.dump("world")
         print(t)
         print(self.world.n_agents)

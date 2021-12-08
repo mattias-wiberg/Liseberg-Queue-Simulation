@@ -17,10 +17,10 @@ class World:
     FPS = 60
     SAVE_PATH = './save/'
 
-    def __init__(self, attractions = [], spawns = [], agents=[]) -> None:
-        self.attractions = attractions
-        self.spawns = spawns
-        self.agents = agents
+    def __init__(self, attractions = None, spawns = None, agents=None) -> None:
+        if attractions is None: self.attractions = []
+        if spawns is None: self.spawns = []
+        if agents is None: self.agents = []
         self.history = []
         self.n_agents = 0
         self.fig, self.ax = plt.subplots()
@@ -54,10 +54,10 @@ class World:
             else:
                 print("Error: Unidentified type ("+type+") in "+path+" skipping row.")
 
-    def spawn_agent(self, _type, _commit_prob) -> Agent:
+    def spawn_agent(self, type, commit_prob, queue_prob, view_range) -> Agent:
         n = np.random.randint(1,5)
         self.n_agents += n
-        self.agents.append(Agent(np.random.choice(self.spawns).position, self.attractions, n, type=_type, commit_prob=_commit_prob))
+        self.agents.append(Agent(np.random.choice(self.spawns).position, self.attractions, queue_prob, commit_prob, view_range, n, type))
         return self.agents[-1]
 
     def populate(self, n_agents, _type, _commit_prob) -> List:

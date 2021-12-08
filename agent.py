@@ -4,8 +4,6 @@ import numpy as np
 import random
 from enum import Enum
 
-from numpy.random.mtrand import rand
-
 class State(Enum):
     IN_PARK = 1
     OUT_OF_PARK = 2
@@ -25,7 +23,7 @@ class Agent:
     visibility = 20
     congestion_radius = 5
 
-    def __init__(self, position:tuple, attractions : List, group_size = 1, type=Type.NAIVE, queue_prob = 0.5, commit_prob = 0.038, view_range=15) -> None:
+    def __init__(self, position:tuple, attractions : List, queue_prob, commit_prob, view_range, group_size, type) -> None:
         self.id = next(self.id_count)
         self.attractions = attractions
         self.position = np.array(position, dtype=np.float64)
@@ -109,7 +107,7 @@ class Agent:
             if self.at_target():
                 self.queue()
             elif not self.proximity_decision and self.target_in_view():
-                if (len(self.attractions) - len(self.visited) != 1) and random.random() > self.queue_prob and self.target.get_queue_time_history()[-1] >= self.expected_qtime*2:
+                if (len(self.attractions) - len(self.visited) != 1) and random.random() > self.queue_prob and self.target.get_queue_time_history()[-1] > self.expected_qtime*2:
                     to_visit = list((set(self.attractions) - set(self.visited))-set([self.target])) 
                     self.update_target(to_visit) # Pick new target 
                     
