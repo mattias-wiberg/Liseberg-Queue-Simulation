@@ -9,7 +9,6 @@ from agent import Agent
 from spawn import Spawn
 from attraction import Attraction
 import pickle
-import copy
 
 class World:
     ATTRACTION_SIZE = 50 # Size for plotting

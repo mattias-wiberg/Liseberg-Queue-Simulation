@@ -21,8 +21,6 @@ class Type(Enum):
 
 class Agent:
     id_count = itertools.count()
-    visibility = 20
-    congestion_radius = 5
 
     def __init__(self, position:tuple, attractions : List, queue_prob, commit_prob, view_range, group_size, type, visit_window) -> None:
         self.id = next(self.id_count)
