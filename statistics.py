@@ -107,4 +107,20 @@ class Statistics():
         plt.legend()
         plt.show()
 
+    def plot_avg_queue_time(self):
+        avg_queue_times = np.zeros( (len(self.time_values), len(self.attraction_names)) )
+        avg_queue_times[0,:] = self.queue_time_history[0,:]
+        for time_step in range(1, len(self.time_values)):
+            avg_queue_times[time_step,:] = np.average(self.queue_time_history[:time_step+1,:], axis=0)
+        avg_queue_times = np.array(avg_queue_times)
+        
+        plt.clf()
+        for i, attraction_name in enumerate(self.attraction_names):
+            plt.plot(self.time_values, avg_queue_times[:,i], label = attraction_name)
+
+        plt.xlabel('Time Step')
+        plt.ylabel('Average Queue Time [number of timesteps]')
+        plt.title('Avergae Queue Time Per Attraction')
+        plt.legend()
+        plt.show()        
 
