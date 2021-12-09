@@ -24,13 +24,14 @@ class Agent:
     visibility = 20
     congestion_radius = 5
 
-    def __init__(self, position:tuple, attractions : List, queue_prob, commit_prob, view_range, group_size, type) -> None:
+    def __init__(self, position:tuple, attractions : List, queue_prob, commit_prob, view_range, group_size, type, visit_window) -> None:
         self.id = next(self.id_count)
         self.attractions = attractions
         self.position = np.array(position, dtype=np.float64)
         self.group_size = group_size
         self.visited = []
         self.recent_visits = []
+        self.visit_window = visit_window
         self.proximity_decision = False
         self.queue_prob = queue_prob
         self.view_range = view_range
@@ -69,19 +70,22 @@ class Agent:
 
     def set_state(self, state : State):
         if state == State.IN_PARK:
-            to_visit = list(set(self.attractions) - set(self.visited))
-            self.update_target(to_visit)
+            attraction_picks = list(set(self.attractions) - set(self.recent_visits))
+            self.update_target(attraction_picks)
         self.state = state
 
     def add_visited(self, attraction): # Call when visited an attraction
         self.visited.append(attraction)
-        if len(self.attractions) - len(self.visited) == 0: # Visited all
-            self.set_state(State.OUT_OF_PARK)
+        if len(self.recent_visits) != self.visit_window:
+            self.recent_visits.append(attraction)
         else:
-            self.set_state(State.IN_PARK)
-            if self.type != Type.RANDOM:
-                self.commited = False
-            self.proximity_decision = False
+            self.recent_visits.remove(self.recent_visits[0])
+            self.recent_visits.append(attraction)
+        
+        self.set_state(State.IN_PARK)
+        if self.type != Type.RANDOM:
+            self.commited = False
+        self.proximity_decision = False
 
     
     # Returns the attraction with the lowest queue time.
@@ -109,9 +113,9 @@ class Agent:
             if self.at_target():
                 self.queue()
             elif not self.proximity_decision and self.target_in_view():
-                if (len(self.attractions) - len(self.visited) != 1) and random.random() > self.queue_prob and self.target.get_queue_time_history()[-1] > self.expected_qtime*2:
-                    to_visit = list((set(self.attractions) - set(self.visited))-set([self.target])) 
-                    self.update_target(to_visit) # Pick new target 
+                if random.random() > self.queue_prob and self.target.get_queue_time_history()[-1] > self.expected_qtime*2:
+                    attraction_picks = list((set(self.attractions) - set(self.recent_visits))-set([self.target])) 
+                    self.update_target(attraction_picks) # Pick new target 
                     
                 self.proximity_decision = True
             else:
@@ -122,15 +126,12 @@ class Agent:
         self.set_state(State.IN_QUEUE)
         
     def move(self) -> None:
-        to_visit = list(set(self.attractions) - set(self.visited))
-        if len(to_visit) != 0:
-            if not self.commited:
-                self.update_target(to_visit)
-                if random.random() < self.commit_prob:
-                    self.commited = True
-            self.position += self.direction * self.velocity
-        else:
-            self.set_state(State.OUT_OF_PARK)
+        attraction_picks = list(set(self.attractions) - set(self.recent_visits))
+        if not self.commited:
+            self.update_target(attraction_picks)
+            if random.random() < self.commit_prob:
+                self.commited = True
+        self.position += self.direction * self.velocity
         
          
     def update_target(self, attractions : List) -> None:

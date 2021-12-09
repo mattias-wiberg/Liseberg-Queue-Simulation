@@ -54,10 +54,10 @@ class World:
             else:
                 print("Error: Unidentified type ("+type+") in "+path+" skipping row.")
 
-    def spawn_agent(self, type, commit_prob, queue_prob, view_range) -> Agent:
+    def spawn_agent(self, type, commit_prob, queue_prob, view_range, visit_window) -> Agent:
         n = np.random.randint(1,5)
         self.n_agents += n
-        self.agents.append(Agent(np.random.choice(self.spawns).position, self.attractions, queue_prob, commit_prob, view_range, n, type))
+        self.agents.append(Agent(np.random.choice(self.spawns).position, self.attractions, queue_prob, commit_prob, view_range, n, type, visit_window))
         return self.agents[-1]
 
     def populate(self, n_agents, _type, _commit_prob) -> List:

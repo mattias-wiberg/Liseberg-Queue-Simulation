@@ -7,7 +7,7 @@ from world import World
 
 class Model:
     # spawn_rules [(spawn_rate, start_time), (leave_rate, start_time)]
-    def __init__(self, commit_prob=0.005, spawn_rules=[(1,0), (1, 10000)], mix = [(Type.NAIVE, 1)], target_n_agents=1000, draw = False, draw_interval=5, queue_prob = 0.5, view_range=15) -> None:
+    def __init__(self, commit_prob=0.005, spawn_rules=[(1,0), (1, 10000)], mix = [(Type.NAIVE, 1)], target_n_agents=1000, draw = False, draw_interval=5, queue_prob = 0.5, view_range=15, visit_window=3) -> None:
         self.draw = draw
         self.draw_interval = draw_interval
         self.mix = mix
@@ -28,7 +28,7 @@ class Model:
                 if cum_prob > choice:
                     type = types[i]
                     break
-            world.spawn_agent(type, commit_prob, queue_prob, view_range)
+            world.spawn_agent(type, commit_prob, queue_prob, view_range, visit_window)
 
         fractions = {}
         for type in types:

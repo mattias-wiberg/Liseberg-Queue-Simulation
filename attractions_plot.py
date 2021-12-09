@@ -28,27 +28,15 @@ def load_data(path):
     plt.show()
         
 
-
-#
-fig, ax = plt.subplots()    
-ax.grid()
-def plot(a, data):
-    data += np.cumsum(np.random.normal(size=100)+3e-2)
-    X = np.c_[data[::2], data[1::2]]
-    ax.clear()
-    sc = ax.scatter(data[::2], data[1::2], c=data[1::2], s=data[1::2])
-    #sc.set_offsets(X)
-    # manually relim:
-    xmin=X[:,0].min(); xmax=X[:,0].max()
-    ymin=X[:,1].min(); ymax=X[:,1].max()
-    ax.set_xlim(xmin-0.1*(xmax-xmin),xmax+0.1*(xmax-xmin))
-    ax.set_ylim(ymin-0.1*(ymax-ymin),ymax+0.1*(ymax-ymin))
-
-#ani = matplotlib.animation.FuncAnimation(fig, plot, fargs=(data,),
-#            frames=4, interval=100, repeat=True) 
-#plt.show()
-
-
-load_data("park_data.csv")
-plt.plot([1,2,3],[1,2,2])
-plt.show()
+#load_data("park_data.csv")
+a = []
+visit = [1,2,3,4,5]
+print(a)
+for to_visit in visit:
+    if len(a) != 3:
+        a.append(to_visit)
+    else:
+        a.remove(a[0])
+        a.append(to_visit)
+    
+    print(a)
