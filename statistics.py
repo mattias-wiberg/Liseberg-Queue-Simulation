@@ -37,6 +37,26 @@ class Statistics():
             agent_cum.append(list(agent_cum_at_t.values()))
         return np.array(agent_cum)
     
+    def __calc_cum_queue_time_per_attraction(self):
+        # DOES NOT INCLUDE PEOPLE IN WAGONS!
+        cum_queue_time = np.zeros( (len(self.time_values), len(self.attraction_names)) )
+        attractions = self.history[0][1]
+        cum_queue_time[0,:] = np.array(list(map(lambda attraction:attraction.queue_size, attractions)))
+        
+        for time_step in range(1, len(self.time_values)):
+            attractions = self.history[time_step][1]
+            cum_queue_time[time_step,:] = np.array(list(map(lambda attraction:attraction.queue_size, attractions))) + cum_queue_time[time_step-1,:]
+
+        return cum_queue_time
+
+    def __calc_avg_queue_times(self):
+        avg_queue_times = np.zeros( (len(self.time_values), len(self.attraction_names)) )
+        avg_queue_times[0,:] = self.queue_time_history[0,:]
+        for time_step in range(1, len(self.time_values)):
+            avg_queue_times[time_step,:] = np.average(self.queue_time_history[:time_step+1,:], axis=0)
+        
+        return np.array(avg_queue_times)
+
     def __init__(self, world):
         self.world = world
         self.attraction_names = ["Helix", "AtmosFear", "Lisebergsbanan", "Loke", "Balder", 
@@ -51,21 +71,17 @@ class Statistics():
         self.queue_time_history = self.__calc_queue_time_per_attraction()
         self.num_agents_history = self.__calc_num_agents_per_attraction()
         self.cum_num_agents_history = self.__calc_cum_num_agents_per_attraction()
+        self.total_n_rides = np.sum(self.cum_num_agents_history, axis=1)
+        self.cum_queue_time_per_attraction = self.__calc_cum_queue_time_per_attraction()
+        self.total_queue_time = np.sum(self.cum_queue_time_per_attraction, axis=1)
+        self.avg_queue_times = self.__calc_avg_queue_times()
+        self.avg_queue_times_all_attractions = np.average(self.avg_queue_times, axis=1)
 
     def plot_cum_queue_time_per_attraction(self):
-        # to get the real cumulative queue time, multiply the cum_queue_time array with the time_step size
-        # right now the unit is number of time steps waited in queue
-        # TODO: this is wrong since it counts the people on the ride as in queue, fix by instead using
-        # attraction.queue_size (instead of self.num_agents_history[time_step,:])
-        cum_queue_time = np.zeros( (len(self.time_values), len(self.attraction_names)) )
-        cum_queue_time[0,:] = self.num_agents_history[0,:]
-        for time_step in range(1, len(self.time_values)):
-            cum_queue_time[time_step,:] = self.num_agents_history[time_step,:] + cum_queue_time[time_step-1,:]
-        cum_queue_time = np.array(cum_queue_time)
-
+        # DOES NOT INCLUDE PEOPLE IN WAGONS!
         plt.clf()
         for i, attraction_name in enumerate(self.attraction_names):
-            plt.plot(self.time_values, cum_queue_time[:,i], label = attraction_name)
+            plt.plot(self.time_values, self.cum_queue_time_per_attraction[:,i], label = attraction_name)
 
         plt.xlabel('Time Step')
         plt.ylabel('Cumulative Queue Time [number of timesteps]')
@@ -87,6 +103,7 @@ class Statistics():
     
     def plot_num_agents_per_attraction(self):
         # TODO: animated histo plot instead
+        # TAKES GROUP SIZE INTO ACCOUNT AND BOTH THE AGENTS IN WAGONS AND QUEUE
         num_agents_in_attractions = np.sum(self.num_agents_history, axis=1)
         num_agents_in_park = np.array(self.total_num_people) - num_agents_in_attractions
 
@@ -114,28 +131,21 @@ class Statistics():
         plt.show()
 
     def plot_total_number_of_rides(self):
-        agent_cum_park = np.sum(self.cum_num_agents_history, axis=1)
         plt.clf()
-        plt.plot(self.time_values, agent_cum_park)
+        plt.plot(self.time_values, self.total_n_rides)
         plt.xlabel('Time Step')
         plt.ylabel('Total Number of Rides')
         plt.title('Total Number of Rides Over All The Attractions')
         plt.show()
 
     def plot_avg_queue_time(self):
-        avg_queue_times = np.zeros( (len(self.time_values), len(self.attraction_names)) )
-        avg_queue_times[0,:] = self.queue_time_history[0,:]
-        for time_step in range(1, len(self.time_values)):
-            avg_queue_times[time_step,:] = np.average(self.queue_time_history[:time_step+1,:], axis=0)
-        avg_queue_times = np.array(avg_queue_times)
-        
         plt.clf()
         for i, attraction_name in enumerate(self.attraction_names):
-            plt.plot(self.time_values, avg_queue_times[:,i], label = attraction_name)
+            plt.plot(self.time_values, self.avg_queue_times[:,i], label = attraction_name)
 
         plt.xlabel('Time Step')
         plt.ylabel('Average Queue Time [number of timesteps]')
-        plt.title('Avergae Queue Time Per Attraction')
+        plt.title('Average Queue Time Per Attraction')
         plt.legend()
         plt.show()        
 
@@ -167,5 +177,18 @@ class Statistics():
         plt.xlabel('Agent Type')
         plt.ylabel('Group Size')
         plt.title('Fitness Score Per Agent Type and Group Size')
-
         plt.show()
+
+    def plot_n_rides_div_q_time(self):
+        # sum all rides/sum cumulative queue time
+        plt.clf()
+        n_rides_div_q_time = self.total_n_rides/self.total_queue_time
+        n_rides_div_q_time = np.nan_to_num(n_rides_div_q_time)
+        plt.plot(self.time_values, n_rides_div_q_time)
+        plt.xlabel('Time Step')
+        plt.ylabel('Total Number of All Rides / Cumulative Queue Over All Attractions')
+        plt.title('Total Number of All Rides / Cumulative Queue Over All Attractions')
+        plt.show()
+
+        
+        
