@@ -6,7 +6,7 @@ from world import World
 class Model:
     # spawn_rules [(spawn_rate, start_time), (leave_rate, start_time)]
     def __init__(self, commit_prob=0.005, spawn_rules=[(1,0), (1, 10000)], mix = [(Type.NAIVE, 1)],
-    target_n_agents=1000, queue_prob = 0.5, view_range=15, visit_window=3) -> None:
+    target_n_agents=1000, queue_prob = 0.5, view_range=15, visit_window=3, delay=0, extrapolate_pts=60) -> None:
         self.mix = mix
         self.spawn_rule = spawn_rules[0]
         self.leave_rule = spawn_rules[1]
@@ -16,7 +16,7 @@ class Model:
             print("Error: Incorrect list of probabilities")
         
         world = World()
-        world.load_park("park_data.csv")
+        world.load_park("park_data.csv", delay, extrapolate_pts)
         while world.n_agents < target_n_agents:
             choice = random.random()
             cum_prob = 0
@@ -42,7 +42,7 @@ class Model:
         world.agents = [self.spawn_list.pop()] # Add first agent to start dynamics
         self.world = world
 
-    def run(self, time_steps, draw=False, interactive=False, png_export=False, draw_interval=5, save_interval=1):
+    def run(self, time_steps, save=True, draw=False, interactive=False, png_export=False, draw_interval=5, save_interval=1):
         t = 1
         cum_spawn = 0
         cum_leave = 0
@@ -80,16 +80,19 @@ class Model:
             for agent in self.world.agents:
                 agent.update()
 
-            if t % draw_interval == 0:
-                print(t)
-                if draw: 
+            if draw: 
+                if t % draw_interval == 0:
                     self.world.draw(t, interactive)
                     if png_export: self.world.save_png(t)
-            if t % save_interval == 0:
-                self.world.add_to_history()
+                    
+            if save:
+                if t % save_interval == 0:
+                    self.world.add_to_history()
+                    
+            print(t)
             t += 1
 
-        if self.draw:
+        if draw:
             self.world.draw(t, interactive)
             if png_export: self.world.save_png(t)
         #self.world.save_png(t)
