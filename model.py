@@ -5,8 +5,8 @@ from world import World
 
 class Model:
     # spawn_rules [(spawn_rate, start_time), (leave_rate, start_time)]
-    def __init__(self, commit_prob=0.005, spawn_rules=[(1,0), (1, 10000)], mix = [(Type.NAIVE, 1)],
-    target_n_agents=1000, queue_prob = 0.5, view_range=15, visit_window=3, delay=0, extrapolate_pts=60) -> None:
+    def __init__(self, mix, delay, commit_prob=0.005, spawn_rules=[(2.0834,0), (4.1667, 39600)],
+    target_n_agents=1000, queue_prob = 0.5, view_range=15, visit_window=3, extrapolate_pts=360) -> None:
         self.mix = mix
         self.spawn_rule = spawn_rules[0]
         self.leave_rule = spawn_rules[1]
