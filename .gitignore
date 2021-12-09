@@ -5,3 +5,4 @@ __pycache__
 *.png
 profiling_stats.txt
 .prof_stats
+*.p
