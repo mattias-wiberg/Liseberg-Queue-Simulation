@@ -232,7 +232,6 @@ class Attraction:
         del copied_attraction.wagon_arrival_time
         del copied_attraction.check_back_limit
         del copied_attraction.delay
-        del copied_attraction.queue_size
         del copied_attraction.extrapolate_pts
         del copied_attraction.extrapolated_queue_time_polynomial
         del copied_attraction.global_time
