@@ -51,17 +51,17 @@ class Statistics():
         self.queue_time_history = self.__calc_queue_time_per_attraction()
         self.num_agents_history = self.__calc_num_agents_per_attraction()
         self.cum_num_agents_history = self.__calc_cum_num_agents_per_attraction()
+        self.total_n_rides = np.sum(self.cum_num_agents_history, axis=1)
 
     def plot_cum_queue_time_per_attraction(self):
-        # to get the real cumulative queue time, multiply the cum_queue_time array with the time_step size
-        # right now the unit is number of time steps waited in queue
-        # TODO: this is wrong since it counts the people on the ride as in queue, fix by instead using
-        # attraction.queue_size (instead of self.num_agents_history[time_step,:])
+        # DOES NOT INCLUDE PEOPLE IN WAGONS!
         cum_queue_time = np.zeros( (len(self.time_values), len(self.attraction_names)) )
-        cum_queue_time[0,:] = self.num_agents_history[0,:]
+        attractions = self.history[0][1]
+        cum_queue_time[0,:] = np.array(list(map(lambda attraction:attraction.queue_size, attractions)))
+        
         for time_step in range(1, len(self.time_values)):
-            cum_queue_time[time_step,:] = self.num_agents_history[time_step,:] + cum_queue_time[time_step-1,:]
-        cum_queue_time = np.array(cum_queue_time)
+            attractions = self.history[time_step][1]
+            cum_queue_time[time_step,:] = np.array(list(map(lambda attraction:attraction.queue_size, attractions))) + cum_queue_time[time_step-1,:]
 
         plt.clf()
         for i, attraction_name in enumerate(self.attraction_names):
@@ -87,6 +87,7 @@ class Statistics():
     
     def plot_num_agents_per_attraction(self):
         # TODO: animated histo plot instead
+        # TAKES GROUP SIZE INTO ACCOUNT AND BOTH THE AGENTS IN WAGONS AND QUEUE
         num_agents_in_attractions = np.sum(self.num_agents_history, axis=1)
         num_agents_in_park = np.array(self.total_num_people) - num_agents_in_attractions
 
@@ -114,9 +115,8 @@ class Statistics():
         plt.show()
 
     def plot_total_number_of_rides(self):
-        agent_cum_park = np.sum(self.cum_num_agents_history, axis=1)
         plt.clf()
-        plt.plot(self.time_values, agent_cum_park)
+        plt.plot(self.time_values, self.total_n_rides)
         plt.xlabel('Time Step')
         plt.ylabel('Total Number of Rides')
         plt.title('Total Number of Rides Over All The Attractions')
@@ -169,3 +169,8 @@ class Statistics():
         plt.title('Fitness Score Per Agent Type and Group Size')
 
         plt.show()
+
+    def plot_n_rides_div_q_time(self):
+        # sum all rides/sum cumulative queue time
+
+        pass
