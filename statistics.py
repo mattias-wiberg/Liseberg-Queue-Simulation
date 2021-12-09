@@ -18,6 +18,24 @@ class Statistics():
             num_agents = list(map(lambda attraction:attraction.get_num_agents(), attractions))
             num_agents_history.append(num_agents)
         return np.array(num_agents_history)
+
+    def __calc_cum_num_agents_per_attraction(self):
+        attraction_pickled_names = list(map(lambda attraction:attraction.get_name(), self.history[0][1]))
+
+        agent_cum = []
+        for time_step in range(len(self.time_values)):
+            
+            agent_cum_at_t = {}
+            for attraction_name in attraction_pickled_names:
+                agent_cum_at_t[attraction_name] = 0
+
+            agents = self.history[time_step][0]
+            for agent in agents:
+                for visited_attraction in agent.visited:
+                    agent_cum_at_t[visited_attraction.get_name()] += agent.get_group_size()
+
+            agent_cum.append(list(agent_cum_at_t.values()))
+        return np.array(agent_cum)
     
     def __init__(self, world):
         self.world = world
@@ -32,13 +50,13 @@ class Statistics():
 
         self.queue_time_history = self.__calc_queue_time_per_attraction()
         self.num_agents_history = self.__calc_num_agents_per_attraction()
+        self.cum_num_agents_history = self.__calc_cum_num_agents_per_attraction()
 
     def plot_cum_queue_time_per_attraction(self):
         # to get the real cumulative queue time, multiply the cum_queue_time array with the time_step size
         # right now the unit is number of time steps waited in queue
         # TODO: this is wrong since it counts the people on the ride as in queue, fix by instead using
         # attraction.queue_size (instead of self.num_agents_history[time_step,:])
-
         cum_queue_time = np.zeros( (len(self.time_values), len(self.attraction_names)) )
         cum_queue_time[0,:] = self.num_agents_history[0,:]
         for time_step in range(1, len(self.time_values)):
@@ -54,7 +72,6 @@ class Statistics():
         plt.title('Cumulative Queue Time Per Attraction')
         plt.legend()
         plt.show()
-
 
     def plot_queue_time_per_attraction(self):
         # TODO: animated histo plot instead
@@ -86,32 +103,23 @@ class Statistics():
         plt.show()
 
     def plot_agent_cum(self):
-        # TODO: animated histo plot instead
-        attraction_pickled_names = list(map(lambda attraction:attraction.get_name(), self.history[0][1]))
-
-        agent_cum = []
-        for time_step in range(len(self.time_values)):
-            
-            agent_cum_at_t = {}
-            for attraction_name in attraction_pickled_names:
-                agent_cum_at_t[attraction_name] = 0
-
-            agents = self.history[time_step][0]
-            for agent in agents:
-                for visited_attraction in agent.visited:
-                    agent_cum_at_t[visited_attraction.get_name()] += agent.get_group_size()
-
-            agent_cum.append(list(agent_cum_at_t.values()))
-        agent_cum = np.array(agent_cum)
-        
         plt.clf()
         for i, attraction_name in enumerate(self.attraction_names):
-            plt.plot(self.time_values, agent_cum[:,i], label = attraction_name)
+            plt.plot(self.time_values, self.cum_num_agents_history[:,i], label = attraction_name)
 
         plt.xlabel('Time Step')
         plt.ylabel('Cumulative Number of Agents')
         plt.title('Cumulative Number of Agents Per Attraction')
         plt.legend()
+        plt.show()
+
+    def plot_total_number_of_rides(self):
+        agent_cum_park = np.sum(self.cum_num_agents_history, axis=1)
+        plt.clf()
+        plt.plot(self.time_values, agent_cum_park)
+        plt.xlabel('Time Step')
+        plt.ylabel('Total Number of Rides')
+        plt.title('Total Number of Rides Over All The Attractions')
         plt.show()
 
     def plot_avg_queue_time(self):

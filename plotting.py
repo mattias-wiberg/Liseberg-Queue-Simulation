@@ -12,5 +12,6 @@ stats = Statistics(world)
 #stats.plot_agent_cum()
 #stats.plot_cum_queue_time_per_attraction()
 #stats.plot_avg_queue_time()
-stats.plot_agent_fitness_by_type()
+#stats.plot_agent_fitness_by_type()
+stats.plot_total_number_of_rides()
 
