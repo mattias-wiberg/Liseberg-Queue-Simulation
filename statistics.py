@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from agent import Type, State
-import copy
 
 class Statistics():
     def __calc_queue_time_per_attraction(self):
@@ -57,6 +56,14 @@ class Statistics():
         
         return np.array(avg_queue_times)
 
+    def __calc_std_avg_queue_times_all_attractions(self):
+        std_queue_times = np.zeros( (len(self.time_values), 1) )
+        std_queue_times[0,:] = self.avg_queue_times_all_attractions[0]
+        for time_step in range(1, len(self.time_values)):
+            std_queue_times[time_step] = np.std(self.avg_queue_times_all_attractions[:time_step+1], axis=0)
+        
+        return std_queue_times
+
     def __init__(self, world):
         self.world = world
         self.attraction_names = ["Helix", "AtmosFear", "Lisebergsbanan", "Loke", "Balder", 
@@ -76,6 +83,7 @@ class Statistics():
         self.total_queue_time = np.sum(self.cum_queue_time_per_attraction, axis=1)
         self.avg_queue_times = self.__calc_avg_queue_times()
         self.avg_queue_times_all_attractions = np.average(self.avg_queue_times, axis=1)
+        self.std_avg_queue_times_all_attractions = self.__calc_std_avg_queue_times_all_attractions()
 
     def plot_cum_queue_time_per_attraction(self):
         # DOES NOT INCLUDE PEOPLE IN WAGONS!
@@ -190,5 +198,13 @@ class Statistics():
         plt.title('Total Number of All Rides / Cumulative Queue Over All Attractions')
         plt.show()
 
-        
+    def plot_avg_std_queue_time(self):
+        plt.clf()
+        plt.plot(self.time_values, self.avg_queue_times_all_attractions, label="Average Queue Time")
+        plt.plot(self.time_values, self.std_avg_queue_times_all_attractions, label="Std of The Average Queue Time")
+        plt.xlabel('Time Step')
+        plt.ylabel('Value')
+        plt.title('Average Queue Time Over All Attractions and Standard Deviation of Said Average')
+        plt.legend()
+        plt.show()
         
