@@ -21,7 +21,7 @@ class Attraction:
         self.__queue = []
         self.__queue_time_history = [0]
         self.delay = delay
-        self.queue_size = 0   # takes agent group size into account # TODO: remove later (shouldn't be used anywhere)
+        self.queue_size = 0   # takes agent group size into account
 
         if extrapolate_pts < 2:
             raise Exception("__init__ in attraction.py: extrapolate_pts argument is less than 2. Cannot extrapolate from less than two points.")
@@ -42,7 +42,6 @@ class Attraction:
             self.queue_size += agent.get_group_size()
 
     def get_queue_size(self):
-        # TODO: remove later (shouldn't be used anywhere)
         return self.queue_size
 
     def advance_queue(self, global_time):
