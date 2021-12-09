@@ -25,7 +25,7 @@ class World:
         self.fig, self.ax = plt.subplots()
         plt.draw()
 
-    def load_park(self, path)->List:
+    def load_park(self, path, delay, extrapolate_pts)->List:
         data = np.genfromtxt(path, delimiter=',', dtype=("U20","U20",float,float,int,int,int))
         R = 6371000 # World radius
         origin = data[0]
@@ -49,7 +49,7 @@ class World:
             if type == "SPAWN":
                 self.spawns.append(Spawn(name, (x, y)))
             elif type == "ATTRACTION":
-                self.attractions.append(Attraction(name, (x,y), ride_size, ride_time, number_of_wagons, delay=0, extrapolate_pts=60))
+                self.attractions.append(Attraction(name, (x,y), ride_size, ride_time, number_of_wagons, delay=delay, extrapolate_pts=extrapolate_pts))
             else:
                 print("Error: Unidentified type ("+type+") in "+path+" skipping row.")
 
