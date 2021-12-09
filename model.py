@@ -89,8 +89,8 @@ class Model:
                 if t % save_interval == 0:
                     self.world.add_to_history()
                     if t % save_interval_max == 0:
-                        self.world.history = []
                         self.world.dump("world"+format(int(t/save_interval_max), "05b"))
+                        self.world.history = []
                     
             print(t)
             t += 1
