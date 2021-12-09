@@ -6,9 +6,7 @@ from world import World
 class Model:
     # spawn_rules [(spawn_rate, start_time), (leave_rate, start_time)]
     def __init__(self, commit_prob=0.005, spawn_rules=[(1,0), (1, 10000)], mix = [(Type.NAIVE, 1)],
-    target_n_agents=1000, draw = False, draw_interval=5, save_interval=1, queue_prob = 0.5, view_range=15, visit_window=3) -> None:
-        self.draw = draw
-        self.draw_interval = draw_interval
+    target_n_agents=1000, queue_prob = 0.5, view_range=15, visit_window=3) -> None:
         self.mix = mix
         self.spawn_rule = spawn_rules[0]
         self.leave_rule = spawn_rules[1]
@@ -44,12 +42,13 @@ class Model:
         world.agents = [self.spawn_list.pop()] # Add first agent to start dynamics
         self.world = world
 
-    def run(self, time_steps):
+    def run(self, time_steps, draw=False, interactive=False, png_export=False, draw_interval=5, save_interval=1):
         t = 1
         cum_spawn = 0
         cum_leave = 0
-        if self.draw: self.world.draw(t, True)
-        #self.world.save_png(t)
+        if draw: 
+            self.world.draw(t, interactive)
+            if png_export: self.world.save_png(t)
         agent_to_spawn = self.spawn_list.pop()
         for _ in range(time_steps):
             # Spawning
@@ -81,14 +80,18 @@ class Model:
             for agent in self.world.agents:
                 agent.update()
 
-            if t % self.draw_interval == 0:
+            if t % draw_interval == 0:
                 print(t)
-                if self.draw: self.world.draw(t, True)
-                #self.world.save_png(t)
-                #self.world.add_to_history()
+                if draw: 
+                    self.world.draw(t, interactive)
+                    if png_export: self.world.save_png(t)
+            if t % save_interval == 0:
+                self.world.add_to_history()
             t += 1
 
-        if self.draw: self.world.draw(t, True)
+        if self.draw:
+            self.world.draw(t, interactive)
+            if png_export: self.world.save_png(t)
         #self.world.save_png(t)
         #self.world.build_gif()
         #self.world.add_to_history()
