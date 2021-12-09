@@ -12,7 +12,7 @@ if __name__ == '__main__':
 	delays = [0]#[0, 30, 60, 5*60, 10*60, 20*60, 30*60, 40*60, 60*60]
 	mix = [(Type.RANDOM, 1)]
 	for delay in delays:
-		model = Model(mix,delay, target_n_agents=100)
+		model = Model(mix,delay)
 
 		do_profiling = False
 		if do_profiling:
@@ -27,4 +27,4 @@ if __name__ == '__main__':
 				stats.print_stats()
 		else:
 			#43200 = 12 hours
-			model.run(43200, draw=True, interactive=True, draw_export=False, save=False, draw_interval=10)
+			model.run(43200, draw=True, interactive=False, draw_export=True, save=False, draw_interval=10)
