@@ -134,7 +134,11 @@ class Attraction:
         idx_end_pt = len(self.__queue_time_history) - self.__delay
 
         if idx_start_pt < 0:
-            pts = self.__queue_time_history
+            # pts = self.__queue_time_history
+            # queue history not yet long enough to extrapolate from the points
+            # self.__extrapolated_queue_time_polynomial is set to a horizontal line through the origin by default,
+            # so just keep using that if the history is not yet long enough
+            return
         else:
             pts = self.__queue_time_history[idx_start_pt:idx_end_pt]
 
@@ -183,7 +187,8 @@ class Attraction:
         # -1: newest queue time (just appended)
         if len(self.__queue_time_history) - 1 - self.__delay < 0:
             # if history is not long enough yet, return the oldest value 
-            return self.__queue_time_history[0]
+            # return self.__queue_time_history[0]
+            return 0
         else:
             # newest - delay
             return self.__queue_time_history[len(self.__queue_time_history) - 1 - self.__delay]
