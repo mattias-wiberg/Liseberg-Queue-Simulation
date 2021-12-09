@@ -42,13 +42,13 @@ class Model:
         world.agents = [self.spawn_list.pop()] # Add first agent to start dynamics
         self.world = world
 
-    def run(self, time_steps, save=True, draw=False, interactive=False, png_export=False, draw_interval=5, save_interval=1):
+    def run(self, time_steps, save=True, draw=False, interactive=False, draw_export=False, draw_interval=5, save_interval=1):
         t = 1
         cum_spawn = 0
         cum_leave = 0
         if draw: 
             self.world.draw(t, interactive)
-            if png_export: self.world.save_png(t)
+            if draw_export: self.world.save_png(t)
         agent_to_spawn = self.spawn_list.pop()
         for _ in range(time_steps):
             # Spawning
@@ -83,7 +83,7 @@ class Model:
             if draw: 
                 if t % draw_interval == 0:
                     self.world.draw(t, interactive)
-                    if png_export: self.world.save_png(t)
+                    if draw_export: self.world.save_png(t)
                     
             if save:
                 if t % save_interval == 0:
@@ -94,11 +94,13 @@ class Model:
 
         if draw:
             self.world.draw(t, interactive)
-            if png_export: self.world.save_png(t)
-        #self.world.save_png(t)
-        #self.world.build_gif()
-        #self.world.add_to_history()
-        #self.world.dump("world")
+            if draw_export: self.world.save_png(t)
+            
+        if save:
+            self.world.add_to_history() 
+            self.world.dump("world")
+
+        if draw_export: self.world.build_gif()
         print(t)
         print(self.world.n_agents)
 

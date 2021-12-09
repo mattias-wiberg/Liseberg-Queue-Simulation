@@ -9,7 +9,7 @@ random.seed(10)
 
 if __name__ == '__main__':
     #model = Model(mix=[(Type.RANDOM, 0.5),(Type.SMART, 0.5)])
-    model = Model(target_n_agents=15000,spawn_rules=[(1,0), (1, 500)],mix=[(Type.RANDOM, 1)])
+    model = Model(target_n_agents=100,spawn_rules=[(1,0), (1, 500)],mix=[(Type.RANDOM, 1)])
 
     do_profiling = False
     if do_profiling:
@@ -23,4 +23,4 @@ if __name__ == '__main__':
             stats.dump_stats('square.prof')
             stats.print_stats()
     else:
-        model.run(43200)
+        model.run(43200, draw=True, interactive=True)
