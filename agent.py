@@ -30,6 +30,7 @@ class Agent:
         self.position = np.array(position, dtype=np.float64)
         self.group_size = group_size
         self.visited = []
+        self.recent_visits = []
         self.proximity_decision = False
         self.queue_prob = queue_prob
         self.view_range = view_range

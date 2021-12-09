@@ -61,14 +61,15 @@ class Model:
                     agent_to_spawn = self.spawn_list.pop()
                 cum_spawn += self.spawn_rule[0] # Add spawn rate to sum
 
-            # Leaving
+            # Leaving prio FIFO of in park.
             if t > self.leave_rule[1]:
                 if cum_leave >= 1:
                     for agent in self.world.agents:
-                        if agent.state == State.IN_PARK and cum_leave >= agent.get_group_size():
-                            self.world.agents.remove(agent)
-                            cum_leave -= agent.get_group_size()
-                            if cum_leave < 1:
+                        if agent.state == State.IN_PARK:
+                            if cum_leave >= agent.get_group_size():
+                                self.world.agents.remove(agent)
+                                cum_leave -= agent.get_group_size()
+                            else:
                                 break
                 cum_leave += self.leave_rule[0] # Add spawn rate to sum
 
