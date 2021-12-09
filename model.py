@@ -7,7 +7,7 @@ from world import World
 
 class Model:
     # spawn_rules [(spawn_rate, start_time), (leave_rate, start_time)]
-    def __init__(self, commit_prob=0.005, spawn_rules=[(0.1,0), (0.1,1000)], mix = [(Type.NAIVE, 1)], target_n_agents=1000, draw = False, draw_interval=5, queue_prob = 0.5, view_range=15) -> None:
+    def __init__(self, commit_prob=0.005, spawn_rules=[(1,0), (1, 10000)], mix = [(Type.NAIVE, 1)], target_n_agents=1000, draw = False, draw_interval=5, queue_prob = 0.5, view_range=15) -> None:
         self.draw = draw
         self.draw_interval = draw_interval
         self.mix = mix
@@ -45,13 +45,14 @@ class Model:
         world.agents = [self.spawn_list.pop()] # Add first agent to start dynamics
         self.world = world
 
-    def run(self):
+    def run(self, time_steps):
         t = 1
         cum_spawn = 0
         cum_leave = 0
-        if self.draw: self.world.draw(t)
+        if self.draw: self.world.draw(t, False)
+        #self.world.save_png(t)
         agent_to_spawn = self.spawn_list.pop()
-        while True:
+        for _ in range(time_steps):
             # Spawning
             if not len(self.spawn_list)==0 and t > self.spawn_rule[1]:
                 if cum_spawn >= agent_to_spawn.get_group_size():
@@ -81,23 +82,23 @@ class Model:
 
             if t % self.draw_interval == 0:
                 print(t)
-                if self.draw: self.world.draw(t)
-                self.world.add_to_history()
-
-            if self.world.park_empty():
-                break
+                if self.draw: self.world.draw(t, False)
+                #self.world.save_png(t)
+                #self.world.add_to_history()
             t += 1
 
-        if self.draw: self.world.draw(t)
-        self.world.add_to_history()
-        self.world.dump("world")
+        if self.draw: self.world.draw(t, False)
+        #self.world.save_png(t)
+        #self.world.build_gif()
+        #self.world.add_to_history()
+        #self.world.dump("world")
         print(t)
         print(self.world.n_agents)
 
         avg_queue_time = 0
         for attraction in self.world.attractions:
             avg_queue_time += attraction.get_avg_queue_time()
-            #print(f'{attraction.__name} : {attraction.get_avg_queue_time()} ')
+            #print(f'{attraction.name} : {attraction.get_avg_queue_time()} ')
 
         print(f'Average queue time over all attractions: {avg_queue_time/len(self.world.attractions)}')
 
