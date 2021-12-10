@@ -85,14 +85,14 @@ class Statistics():
         num_people_history = np.reshape(num_people_history, newshape=(1000,))
         return num_people_history
 
-    def __init__(self, directory="pickles/"):
-        pickle_files = os.listdir(directory)
-        self.world = world
+    def __init__(self, history):
+        #pickle_files = os.listdir(directory)
+        #self.world = world
         self.attraction_names = ["Helix", "AtmosFear", "Lisebergsbanan", "Loke", "Balder",
                                  "Valkyria", "Mechanica", "FlumeRide", "Hanghai", "Aerospin", "Slänggungan"]
         # pickle has trouble with non-ASCII characters, so that is why the names are here
-        self.time_values = list(range(len(self.world.get_history())))
-        self.history = self.world.get_history()
+        self.time_values = list(range(len(history)))
+        self.history = history
 
         self.total_num_people_history = self.__calc_total_num_people_history()
 

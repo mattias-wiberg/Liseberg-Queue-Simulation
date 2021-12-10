@@ -6,12 +6,10 @@ from statistics import Statistics
 # agents sorted by queue time and plotted as a distribution?
 
 
-stats = Statistics()
+#stats = Statistics()
 #worlds.append(pickle.load(open("pickles/world00001.p", "rb")))
-#world = pickle.load(open("pickles/world00001.p", "rb"))
-
-
-#stats = Statistics(world)
+history = pickle.load(open("pickles/world00001.p", "rb"))
+stats = Statistics(history)
 #stats.plot_num_agents_per_attraction()
 #stats.plot_queue_time_per_attraction()
 #stats.plot_agent_cum()
