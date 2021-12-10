@@ -105,7 +105,7 @@ class World:
         files = glob.glob(path + '*')
         for filename in files:
             frames.append(imageio.imread(filename))
-        imageio.mimsave(name, frames, format='GIF', fps=20)
+        imageio.mimsave(name, frames, format='GIF', fps=30)
 
     def draw(self, t, draw_continuously=True):
         self.ax.clear()
