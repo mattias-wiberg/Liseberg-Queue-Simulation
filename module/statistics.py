@@ -114,10 +114,17 @@ class Statistics():
 
         return fitness_score_by_size_by_type
 
-    def __init__(self, directory="logs/", save_to_filename="statistics.p"):
+    def __init__(self, directory="logs/", save_to_filename="statistics.p", skip_first=True):
         self.directory = directory
         self.save_to_filename = save_to_filename
         self.pickle_files = os.listdir(directory)
+
+        if save_to_filename in self.pickle_files:
+            self.pickle_files.remove(save_to_filename)
+
+        if skip_first:
+            self.pickle_files.pop(0)
+
         self.attraction_names = ["Helix", "AtmosFear", "Lisebergsbanan", "Loke", "Balder",
                                  "Valkyria", "Mechanica", "FlumeRide", "Hanghai", "Aerospin", "Slänggungan"]
         # pickle has trouble with non-ASCII characters, so that is why the names are here

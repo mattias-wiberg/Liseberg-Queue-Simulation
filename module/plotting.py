@@ -2,15 +2,6 @@ import pickle
 from statistics import Statistics
 import os
 
-# average cum time in queue at every time step,
-# histogram: changing with time for queue at every time period
-# agents sorted by queue time and plotted as a distribution?
-
-
-#stats = Statistics()
-#worlds.append(pickle.load(open("pickles/world00001.p", "rb")))
-#history = pickle.load(open("logs/world00001.p", "rb"))
-
 log_directory = "logs/"
 files = os.listdir(log_directory)
 stats_filename = "statistics.p" 
