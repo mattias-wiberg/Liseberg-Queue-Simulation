@@ -38,14 +38,40 @@ class Model:
         print("Population Fractions:")
         for type in types:
             print(type.name, ":", round(self.fractions[type]*100, 4), "%")
-
+        print("Using " + str(delay) + " seconds delay")
         self.spawn_list = world.agents
         self.n_agents = world.n_agents
         # Add first agent to start dynamics
         world.agents = [self.spawn_list.pop()]
         self.world = world
 
+    # Print iterations progress
+    def printProgressBar(self, iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
+        """
+        Call in a loop to create terminal progress bar
+        @params:
+            iteration   - Required  : current iteration (Int)
+            total       - Required  : total iterations (Int)
+            prefix      - Optional  : prefix string (Str)
+            suffix      - Optional  : suffix string (Str)
+            decimals    - Optional  : positive number of decimals in percent complete (Int)
+            length      - Optional  : character length of bar (Int)
+            fill        - Optional  : bar fill character (Str)
+            printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+        """
+        percent = ("{0:." + str(decimals) + "f}").format(100 *
+                                                         (iteration / float(total)))
+        filledLength = int(length * iteration // total)
+        bar = fill * filledLength + '-' * (length - filledLength)
+        print(f'\r{prefix} |{bar}| {percent}% {suffix}', end=printEnd)
+        # Print New Line on Complete
+        if iteration == total:
+            print()
+
     def run(self, time_steps, logs_path, save=True, draw=False, interactive=False, draw_export=False, draw_interval=5, save_interval=1, save_interval_max=1000):
+        # Initial call to print 0% progress
+        self.printProgressBar(
+            0, time_steps, prefix='Progress:', suffix='Complete', length=50)
         t = 1
         cum_spawn = 0
         cum_leave = 0
@@ -97,8 +123,9 @@ class Model:
                         self.world.dump(logs_path,
                                         "world"+format(int(t/save_interval_max), "05b"))
                         self.world.history = []
-
-            print(t)
+            if t % 100:
+                self.printProgressBar(
+                    t + 1, time_steps, prefix='Progress:', suffix='Complete', length=50)
             t += 1
 
         if draw:
