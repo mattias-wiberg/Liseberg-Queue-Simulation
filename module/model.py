@@ -1,6 +1,7 @@
 import random
 from agent import State, Type
 from world import World
+import os
 
 
 class Model:
@@ -44,7 +45,7 @@ class Model:
         world.agents = [self.spawn_list.pop()]
         self.world = world
 
-    def run(self, time_steps, save=True, draw=False, interactive=False, draw_export=False, draw_interval=5, save_interval=1, save_interval_max=1000):
+    def run(self, time_steps, logs_path, save=True, draw=False, interactive=False, draw_export=False, draw_interval=5, save_interval=1, save_interval_max=1000):
         t = 1
         cum_spawn = 0
         cum_leave = 0
@@ -93,8 +94,8 @@ class Model:
                 if t % save_interval == 0:
                     self.world.add_to_history()
                     if t % save_interval_max == 0:
-                        self.world.dump(
-                            "world"+format(int(t/save_interval_max), "05b"))
+                        self.world.dump(logs_path,
+                                        "world"+format(int(t/save_interval_max), "05b"))
                         self.world.history = []
 
             print(t)

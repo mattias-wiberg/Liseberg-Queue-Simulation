@@ -5,14 +5,15 @@ import cProfile
 from pstats import Stats, SortKey
 from agent import Type
 import sys
+import os
 np.random.seed(10)
 random.seed(10)
 
 if __name__ == '__main__':
     #model = Model(mix=[(Type.RANDOM, 0.5),(Type.SMART, 0.5)])
     # [0, 30, 60, 5*60, 10*60, 20*60, 30*60, 40*60, 60*60]
-    delay = 0  # int(sys.argv[1])
-    mix = [(Type.RANDOM, 0.5), (Type.SMART, 0.5)]
+    delay = int(sys.argv[1])
+    mix = [(Type.RANDOM, 1)]
     model = Model(mix, delay)
 
     do_profiling = False
@@ -27,5 +28,14 @@ if __name__ == '__main__':
             stats.dump_stats('square.prof')
             stats.print_stats()
     else:
+        # Make logs folder
+        types, probs = list(zip(*mix))
+        folder_name = ""
+        for i in range(len(types)):
+            folder_name += types[i].name + "_" + str(probs[i])
+            if i != len(types)-1:
+                folder_name += "-"
+        logs_path = "../logs/"+folder_name+"/"+str(delay)
+        os.makedirs(logs_path, exist_ok=True)
         # 43200 = 12 hours
-        model.run(43200, draw=True, interactive=True)
+        model.run(43200, logs_path)
