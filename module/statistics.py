@@ -288,11 +288,16 @@ class Statistics():
         plt.show()
 
     def plt_histo(self):
-        def update_hist(time_step, data):
+        def update_hist(time_step, data, max_data_val, num_attractions):
+            colors = ['blue', 'black', 'red', 'green', 'orange', 'brown', 'violet', 'olive', 'indigo', 'tan', 'slategray']
             plt.cla()
-            plt.hist(self.attraction_names, weights=data[time_step,:])
-            plt.title(str(time_step))
+            N, bins, patches = plt.hist(self.attraction_names, weights=data[time_step,:], bins=np.arange(num_attractions+1)-0.5)
+            plt.title(f'Queue Time Per Attraction [{time_step}]')
+            plt.ylim((0,max_data_val))
+            for i in range(len(colors)):
+                patches[i].set_facecolor(colors[i])
 
         fig = plt.figure()
-        animation_handle = animation.FuncAnimation(fig, update_hist, self.time_values, fargs=(self.queue_time_history, ), interval=1)
+        animation_handle = animation.FuncAnimation(fig, update_hist, self.time_values, fargs=(self.queue_time_history, int(np.max(self.queue_time_history)), len(self.attraction_names), ), interval=1)
         plt.show()
+
