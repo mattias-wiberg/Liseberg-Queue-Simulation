@@ -131,7 +131,8 @@ class Statistics():
 
         i_max = len(self.pickle_files)
         for i,file in enumerate(self.pickle_files):
-            self.history = pickle.load(open(directory+file, "rb"))
+            with open(directory+file, "rb") as f:
+                self.history = pickle.load(f)
             self.time_values = list(range(len(self.history)))
 
             self.queue_time_history.append(self.__calc_queue_time_per_attraction())
