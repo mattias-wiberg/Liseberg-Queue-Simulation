@@ -6,8 +6,11 @@ from world import World
 
 class Model:
     # spawn_rules [(spawn_rate, start_time), (leave_rate, start_time)]
+    extrapolate_pts = {0: 30, 30: 60, 60: 5*60, 5*60: 10*60,
+                       10*60: 20*60, 20*60: 30*60, 30*60: 60*60, 60*60: 90*60}
+
     def __init__(self, mix, delay, commit_prob=0.005, spawn_rules=[(2.0834, 0), (4.1667, 39600)],
-                 target_n_agents=15000, queue_prob=0.5, view_range=15, visit_window=3, extrapolate_pts=360) -> None:
+                 target_n_agents=15000, queue_prob=0.5, view_range=15, visit_window=3) -> None:
         self.mix = mix
         self.spawn_rule = spawn_rules[0]
         self.leave_rule = spawn_rules[1]
@@ -17,7 +20,8 @@ class Model:
             print("Error: Incorrect list of probabilities")
 
         world = World()
-        world.load_park("../data/park_data.csv", delay, extrapolate_pts)
+        world.load_park("../data/park_data.csv", delay,
+                        Model.extrapolate_pts[delay])
         while world.n_agents < target_n_agents:
             choice = random.random()
             cum_prob = 0
