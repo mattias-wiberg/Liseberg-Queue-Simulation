@@ -61,8 +61,15 @@ class Statistics():
         std_queue_times[0,:] = self.avg_queue_times_all_attractions[0]
         for time_step in range(1, len(self.time_values)):
             std_queue_times[time_step] = np.std(self.avg_queue_times_all_attractions[:time_step+1], axis=0)
-        
+        std_queue_times = np.reshape(std_queue_times, newshape=(1000,))
         return std_queue_times
+
+    def __calc_total_num_people_history(self):
+        num_people_history = np.zeros( (len(self.time_values), 1) )
+        for time_step in range(len(self.time_values)):
+            num_people_history[time_step,:] = sum(list(map(lambda agent:agent.get_group_size(), self.history[time_step][0]))) 
+        num_people_history = np.reshape(num_people_history, newshape=(1000,))
+        return num_people_history
 
     def __init__(self, world):
         self.world = world
@@ -73,7 +80,7 @@ class Statistics():
         self.history = self.world.get_history()
 
         # TODO: total num people is not constant anymore, fix this later
-        self.total_num_people = sum(list(map(lambda agent:agent.get_group_size(), self.history[0][0])))
+        self.total_num_people_history = self.__calc_total_num_people_history()
 
         self.queue_time_history = self.__calc_queue_time_per_attraction()
         self.num_agents_history = self.__calc_num_agents_per_attraction()
@@ -113,7 +120,7 @@ class Statistics():
         # TODO: animated histo plot instead
         # TAKES GROUP SIZE INTO ACCOUNT AND BOTH THE AGENTS IN WAGONS AND QUEUE
         num_agents_in_attractions = np.sum(self.num_agents_history, axis=1)
-        num_agents_in_park = np.array(self.total_num_people) - num_agents_in_attractions
+        num_agents_in_park = self.total_num_people_history - num_agents_in_attractions
 
         plt.clf()
         for i, attraction_name in enumerate(self.attraction_names):
