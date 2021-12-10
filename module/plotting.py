@@ -8,8 +8,8 @@ from statistics import Statistics
 
 #stats = Statistics()
 #worlds.append(pickle.load(open("pickles/world00001.p", "rb")))
-history = pickle.load(open("logs/world00001.p", "rb"))
-stats = Statistics(history)
+#history = pickle.load(open("logs/world00001.p", "rb"))
+stats = Statistics()
 #stats.plot_num_agents_per_attraction()
 #stats.plot_queue_time_per_attraction()
 #stats.plot_agent_cum()
