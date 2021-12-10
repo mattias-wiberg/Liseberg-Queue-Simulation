@@ -20,7 +20,7 @@ if __name__ == '__main__':
         with cProfile.Profile() as pr:
             model.run(2000)
 
-        with open('profiling_stats.txt', 'w') as stream:
+        with open('../profile/profiling_stats.txt', 'w') as stream:
             stats = Stats(pr, stream=stream)
             stats.strip_dirs()
             stats.sort_stats('time')
