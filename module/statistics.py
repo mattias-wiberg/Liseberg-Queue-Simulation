@@ -115,29 +115,42 @@ class Statistics():
 
         return fitness_score_by_size_by_type
 
-    def __init__(self, history):
-        #pickle_files = os.listdir(directory)
-        #self.world = world
+    def __init__(self, directory="logs/"):
+        self.pickle_files = os.listdir(directory)
         self.attraction_names = ["Helix", "AtmosFear", "Lisebergsbanan", "Loke", "Balder",
                                  "Valkyria", "Mechanica", "FlumeRide", "Hanghai", "Aerospin", "Slänggungan"]
         # pickle has trouble with non-ASCII characters, so that is why the names are here
-        self.time_values = list(range(len(history)))
-        self.history = history
 
-        self.total_num_people_history = self.__calc_total_num_people_history()
+        self.queue_time_history = []
+        self.num_agents_history = []
+        self.cum_num_agents_history = []
+        self.cum_queue_time_per_attraction = []
+        self.total_num_people_history = []
+        self.fitness_score_by_size_by_type = []
+        self.time_values_list = []
 
-        self.queue_time_history = self.__calc_queue_time_per_attraction()
-        self.num_agents_history = self.__calc_num_agents_per_attraction()
-        self.cum_num_agents_history = self.__calc_cum_num_agents_per_attraction()
+        i_max = len(self.pickle_files)
+        for i,file in enumerate(self.pickle_files):
+            self.history = pickle.load(open(directory+file, "rb"))
+            self.time_values = list(range(len(self.history)))
+
+            self.queue_time_history.append(self.__calc_queue_time_per_attraction())
+            self.num_agents_history.append(self.__calc_num_agents_per_attraction())
+            self.cum_num_agents_history.append(self.__calc_cum_num_agents_per_attraction())
+            self.cum_queue_time_per_attraction.append(self.__calc_cum_queue_time_per_attraction())
+            self.total_num_people_history.append(self.__calc_total_num_people_history())
+            self.fitness_score_by_size_by_type.append(self.__calc_agent_fitness_by_type())
+            self.time_values_list.append(self.time_values)
+            print(f'{i}/{i_max}')
+
+        self.time_values = list(range(len(self.time_values_list)))
+
         self.total_n_rides = np.sum(self.cum_num_agents_history, axis=1)
-        self.cum_queue_time_per_attraction = self.__calc_cum_queue_time_per_attraction()
-        self.total_queue_time = np.sum(
-            self.cum_queue_time_per_attraction, axis=1)
+        self.total_queue_time = np.sum(self.cum_queue_time_per_attraction, axis=1)
         self.avg_queue_times = self.__calc_avg_queue_times()
-        self.avg_queue_times_all_attractions = np.average(
-            self.avg_queue_times, axis=1)
+        self.avg_queue_times_all_attractions = np.average(self.avg_queue_times, axis=1)
         self.std_avg_queue_times_all_attractions = self.__calc_std_avg_queue_times_all_attractions()
-        self.fitness_score_by_size_by_type = self.__calc_agent_fitness_by_type()
+
 
     def plot_cum_queue_time_per_attraction(self):
         # DOES NOT INCLUDE PEOPLE IN WAGONS!
