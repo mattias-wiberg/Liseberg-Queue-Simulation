@@ -121,7 +121,7 @@ class Model:
                     self.world.add_to_history()
                     if t % save_interval_max == 0:
                         self.world.dump(logs_path,
-                                        "world"+format(int(t/save_interval_max), "05b"))
+                                        "world"+format(int(t), "020b"))
                         self.world.history = []
             if t % 100:
                 self.printProgressBar(
@@ -134,17 +134,16 @@ class Model:
                 self.world.save_png(t)
         if save:
             self.world.dump(logs_path,
-                            "world"+format(int(t/save_interval_max), "05b"))
+                            "world"+format(int(t), "020b"))
             self.world.history = []
         if draw_export:
             self.world.build_gif()
-        print(t)
-        print(self.world.n_agents)
+        # print(t)
+        # print(self.world.n_agents)
 
         avg_queue_time = 0
         for attraction in self.world.attractions:
             avg_queue_time += attraction.get_avg_queue_time()
             #print(f'{attraction.name} : {attraction.get_avg_queue_time()} ')
 
-        print(
-            f'Average queue time over all attractions: {avg_queue_time/len(self.world.attractions)}')
+        #print(f'Average queue time over all attractions: {avg_queue_time/len(self.world.attractions)}')
