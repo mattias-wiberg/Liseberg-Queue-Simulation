@@ -85,6 +85,36 @@ class Statistics():
         num_people_history = np.reshape(num_people_history, newshape=(1000,))
         return num_people_history
 
+    def __calc_agent_fitness_by_type(self):
+        # agent fitness defined as sum visited attractions/sum cumulative queue time
+        # by type and by group size
+        num_attractions_by_type = np.zeros(
+            (4, len(Type)))   # Row: size, Col: Type
+        cum_queue_time_by_type = np.zeros((4, len(Type)))
+
+        agents = self.history[-1][0]
+        for agent in agents:
+            num_attractions_by_type[agent.get_group_size(
+            )-1, agent.type.value-1] += len(agent.visited)
+
+        for time_step in range(len(self.time_values)):
+            agents = self.history[time_step][0]
+            for agent in agents:
+                if agent.state == State.IN_QUEUE:
+                    # in number of timesteps, so add 1
+                    cum_queue_time_by_type[agent.get_group_size(
+                    )-1, agent.type.value-1] += 1
+
+        fitness_score_by_size_by_type = np.zeros((4, len(Type)))
+        for iSize in range(np.shape(fitness_score_by_size_by_type)[0]):
+            for jType in range(np.shape(fitness_score_by_size_by_type)[1]):
+                num_visited_attractions = num_attractions_by_type[iSize, jType]
+                if num_visited_attractions != 0:
+                    fitness_score_by_size_by_type[iSize, jType] = num_visited_attractions / \
+                        cum_queue_time_by_type[iSize, jType]
+
+        return fitness_score_by_size_by_type
+
     def __init__(self, history):
         #pickle_files = os.listdir(directory)
         #self.world = world
@@ -107,6 +137,7 @@ class Statistics():
         self.avg_queue_times_all_attractions = np.average(
             self.avg_queue_times, axis=1)
         self.std_avg_queue_times_all_attractions = self.__calc_std_avg_queue_times_all_attractions()
+        self.fitness_score_by_size_by_type = self.__calc_agent_fitness_by_type()
 
     def plot_cum_queue_time_per_attraction(self):
         # DOES NOT INCLUDE PEOPLE IN WAGONS!
@@ -189,32 +220,7 @@ class Statistics():
     def plot_agent_fitness_by_type(self):
         # agent fitness defined as sum visited attractions/sum cumulative queue time
         # by type and by group size
-        num_attractions_by_type = np.zeros(
-            (4, len(Type)))   # Row: size, Col: Type
-        cum_queue_time_by_type = np.zeros((4, len(Type)))
-
-        agents = self.history[-1][0]
-        for agent in agents:
-            num_attractions_by_type[agent.get_group_size(
-            )-1, agent.type.value-1] += len(agent.visited)
-
-        for time_step in range(len(self.time_values)):
-            agents = self.history[time_step][0]
-            for agent in agents:
-                if agent.state == State.IN_QUEUE:
-                    # in number of timesteps, so add 1
-                    cum_queue_time_by_type[agent.get_group_size(
-                    )-1, agent.type.value-1] += 1
-
-        fitness_score_by_size_by_type = np.zeros((4, len(Type)))
-        for iSize in range(np.shape(fitness_score_by_size_by_type)[0]):
-            for jType in range(np.shape(fitness_score_by_size_by_type)[1]):
-                num_visited_attractions = num_attractions_by_type[iSize, jType]
-                if num_visited_attractions != 0:
-                    fitness_score_by_size_by_type[iSize, jType] = num_visited_attractions / \
-                        cum_queue_time_by_type[iSize, jType]
-
-        plt.imshow(fitness_score_by_size_by_type,
+        plt.imshow(self.fitness_score_by_size_by_type,
                    cmap='binary', interpolation='nearest')
         plt.colorbar()
         plt.xlabel('Agent Type')
