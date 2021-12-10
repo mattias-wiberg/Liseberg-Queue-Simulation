@@ -21,3 +21,4 @@ else:
 #stats.plot_total_number_of_rides()
 #stats.plot_n_rides_div_q_time()
 #stats.plot_avg_std_queue_time()
+stats.plt_histo()

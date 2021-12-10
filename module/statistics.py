@@ -3,6 +3,7 @@ import numpy as np
 from agent import Type, State
 import pickle
 import os
+import matplotlib.animation as animation
 
 class Statistics():
     def __calc_queue_time_per_attraction(self):
@@ -284,4 +285,14 @@ class Statistics():
         plt.title(
             'Average Queue Time Over All Attractions and Standard Deviation of Said Average')
         plt.legend()
+        plt.show()
+
+    def plt_histo(self):
+        def update_hist(time_step, data):
+            plt.cla()
+            plt.hist(self.attraction_names, weights=data[time_step,:])
+            plt.title(str(time_step))
+
+        fig = plt.figure()
+        animation_handle = animation.FuncAnimation(fig, update_hist, self.time_values, fargs=(self.queue_time_history, ), interval=1)
         plt.show()
