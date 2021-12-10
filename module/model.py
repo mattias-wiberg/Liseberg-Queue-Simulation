@@ -1,7 +1,7 @@
+import pickle
 import random
 from agent import State, Type
 from world import World
-import os
 
 
 class Model:
@@ -135,6 +135,8 @@ class Model:
         if save:
             self.world.dump(logs_path,
                             "world"+format(int(t), "020b"))
+            with open(logs_path+"/model.p", "wb") as f:
+                pickle.dump(self, f)
             self.world.history = []
         if draw_export:
             self.world.build_gif()

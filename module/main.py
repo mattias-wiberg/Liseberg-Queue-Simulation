@@ -1,3 +1,4 @@
+from pickle import FALSE
 import random
 from model import Model
 import numpy as np
@@ -9,7 +10,7 @@ import os
 np.random.seed(10)
 random.seed(10)
 
-REMOTE = True
+REMOTE = False
 
 if __name__ == '__main__':
     #model = Model(mix=[(Type.RANDOM, 0.5),(Type.SMART, 0.5)])
