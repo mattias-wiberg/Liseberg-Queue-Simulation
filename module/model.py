@@ -132,7 +132,10 @@ class Model:
             self.world.draw(t, interactive)
             if draw_export:
                 self.world.save_png(t)
-
+        if save:
+            self.world.dump(logs_path,
+                            "world"+format(int(t/save_interval_max), "05b"))
+            self.world.history = []
         if draw_export:
             self.world.build_gif()
         print(t)

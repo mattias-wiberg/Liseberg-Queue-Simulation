@@ -87,7 +87,6 @@ class World:
             map(lambda attraction: attraction.get_shallow_copy(), self.attractions))))
 
     def dump(self, logs_path, name):
-        print(logs_path+"/"+name+".p")
         with open(logs_path+"/"+name+".p", "wb") as f:
             pickle.dump(self.history, f)
 
