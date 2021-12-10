@@ -210,7 +210,6 @@ class Agent:
         del copied_agent.commit_prob
         del copied_agent.velocity
         del copied_agent.direction
-        del copied_agent.position
         del copied_agent.expected_qtime
         del copied_agent.commited
         del copied_agent.target

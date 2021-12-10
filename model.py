@@ -27,15 +27,15 @@ class Model:
                     break
             world.spawn_agent(type, commit_prob, queue_prob, view_range, visit_window)
 
-        fractions = {}
+        self.fractions = {}
         for type in types:
-            fractions[type] = 0
+            self.fractions[type] = 0
         for agent in world.agents:
-            fractions[agent.type] += agent.get_group_size()/world.n_agents
+            self.fractions[agent.type] += agent.get_group_size()/world.n_agents
         
         print("Population Fractions:")
         for type in types:
-            print(type.name,":",round(fractions[type]*100,4),"%")
+            print(type.name,":",round(self.fractions[type]*100,4),"%")
         
         self.spawn_list = world.agents
         self.n_agents = world.n_agents

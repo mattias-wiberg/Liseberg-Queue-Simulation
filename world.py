@@ -76,7 +76,7 @@ class World:
         self.history.append((agents_copy, list(map(lambda attraction : attraction.get_shallow_copy(), self.attractions))))
 
     def dump(self, name):
-        pickle.dump(self, open("pickles/"+name+".p", "wb" ))
+        pickle.dump(self.history, open("pickles/"+name+".p", "wb" ))
 
     def clear_pngs(self, path = SAVE_PATH):
         files = glob.glob(path + '*')
