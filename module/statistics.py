@@ -73,7 +73,7 @@ class Statistics():
         for time_step in range(1, len(self.time_values)):
             std_queue_times[time_step] = np.std(
                 self.avg_queue_times_all_attractions[:time_step+1], axis=0)
-        std_queue_times = np.reshape(std_queue_times, newshape=(1000,))
+        std_queue_times = np.reshape(std_queue_times, newshape=(len(std_queue_times),))
         return std_queue_times
 
     def __calc_total_num_people_history(self):
@@ -81,7 +81,7 @@ class Statistics():
         for time_step in range(len(self.time_values)):
             num_people_history[time_step, :] = sum(
                 list(map(lambda agent: agent.get_group_size(), self.history[time_step][0])))
-        num_people_history = np.reshape(num_people_history, newshape=(1000,))
+        num_people_history = np.reshape(num_people_history, newshape=(len(num_people_history),))
         return num_people_history
 
     def __calc_agent_fitness_by_type(self):
@@ -114,7 +114,9 @@ class Statistics():
 
         return fitness_score_by_size_by_type
 
-    def __init__(self, directory="logs/"):
+    def __init__(self, directory="logs/", save_to_filename="statistics.p"):
+        self.directory = directory
+        self.save_to_filename = save_to_filename
         self.pickle_files = os.listdir(directory)
         self.attraction_names = ["Helix", "AtmosFear", "Lisebergsbanan", "Loke", "Balder",
                                  "Valkyria", "Mechanica", "FlumeRide", "Hanghai", "Aerospin", "Slänggungan"]
@@ -147,8 +149,6 @@ class Statistics():
                 self.fitness_score_by_size_by_type += self.__calc_agent_fitness_by_type()
 
             print(f'{i}/{i_max}')
-            if i == 1:
-                break
 
         del self.history
         self.fitness_score_by_size_by_type /= (i+1)
@@ -161,6 +161,8 @@ class Statistics():
         self.avg_queue_times_all_attractions = np.average(self.avg_queue_times, axis=1)
         self.std_avg_queue_times_all_attractions = self.__calc_std_avg_queue_times_all_attractions()
 
+        with open(self.directory+self.save_to_filename, "wb") as f:
+            pickle.dump(self, f)        
 
     def plot_cum_queue_time_per_attraction(self):
         # DOES NOT INCLUDE PEOPLE IN WAGONS!
