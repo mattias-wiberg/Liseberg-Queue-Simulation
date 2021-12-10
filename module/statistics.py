@@ -4,7 +4,6 @@ from agent import Type, State
 import pickle
 import os
 
-
 class Statistics():
     def __calc_queue_time_per_attraction(self):
         queue_time_history = []
@@ -121,13 +120,10 @@ class Statistics():
                                  "Valkyria", "Mechanica", "FlumeRide", "Hanghai", "Aerospin", "Slänggungan"]
         # pickle has trouble with non-ASCII characters, so that is why the names are here
 
-        self.queue_time_history = []
-        self.num_agents_history = []
-        self.cum_num_agents_history = []
-        self.cum_queue_time_per_attraction = []
-        self.total_num_people_history = []
-        self.fitness_score_by_size_by_type = []
-        self.time_values_list = []
+        self.queue_time_history = np.empty((0,len(self.attraction_names)))
+        self.num_agents_history = np.empty((0,len(self.attraction_names)))
+        self.cum_num_agents_history = np.empty((0,len(self.attraction_names)))
+        self.total_num_people_history = np.empty((0,))
 
         i_max = len(self.pickle_files)
         for i,file in enumerate(self.pickle_files):
@@ -135,16 +131,29 @@ class Statistics():
                 self.history = pickle.load(f)
             self.time_values = list(range(len(self.history)))
 
-            self.queue_time_history.append(self.__calc_queue_time_per_attraction())
-            self.num_agents_history.append(self.__calc_num_agents_per_attraction())
-            self.cum_num_agents_history.append(self.__calc_cum_num_agents_per_attraction())
-            self.cum_queue_time_per_attraction.append(self.__calc_cum_queue_time_per_attraction())
-            self.total_num_people_history.append(self.__calc_total_num_people_history())
-            self.fitness_score_by_size_by_type.append(self.__calc_agent_fitness_by_type())
-            self.time_values_list.append(self.time_values)
-            print(f'{i}/{i_max}')
+            self.queue_time_history = np.vstack( (self.queue_time_history, self.__calc_queue_time_per_attraction()) )
+            self.num_agents_history = np.vstack( (self.num_agents_history, self.__calc_num_agents_per_attraction()) )
+            self.cum_num_agents_history = np.vstack( (self.cum_num_agents_history, self.__calc_cum_num_agents_per_attraction()) )
+            self.total_num_people_history = np.hstack( (self.total_num_people_history, self.__calc_total_num_people_history()) )
 
-        self.time_values = list(range(len(self.time_values_list)))
+            if i == 0:
+                # these variables not yet initiated
+                self.cum_queue_time_per_attraction = self.__calc_cum_queue_time_per_attraction()
+                self.fitness_score_by_size_by_type = self.__calc_agent_fitness_by_type()
+            else:
+                temp = self.__calc_cum_queue_time_per_attraction() + self.cum_queue_time_per_attraction[-1,:]
+                self.cum_queue_time_per_attraction = np.vstack( (self.cum_queue_time_per_attraction, temp) )
+
+                self.fitness_score_by_size_by_type += self.__calc_agent_fitness_by_type()
+
+            print(f'{i}/{i_max}')
+            if i == 1:
+                break
+
+        del self.history
+        self.fitness_score_by_size_by_type /= (i+1)
+
+        self.time_values = list(range(np.shape(self.queue_time_history)[0]))
 
         self.total_n_rides = np.sum(self.cum_num_agents_history, axis=1)
         self.total_queue_time = np.sum(self.cum_queue_time_per_attraction, axis=1)
