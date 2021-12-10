@@ -2,11 +2,12 @@ import pickle
 from statistics import Statistics
 import os
 
-log_directory = "logs/"
+
+log_directory = "../logs/RANDOM_1.0/0/"
 files = os.listdir(log_directory)
-stats_filename = "statistics.p" 
+stats_filename = "statistics.p"
 if stats_filename not in files:
-    stats = Statistics()
+    stats = Statistics(directory=log_directory)
 else:
     with open(log_directory+stats_filename, "rb") as f:
         stats = pickle.load(f)
