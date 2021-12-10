@@ -68,7 +68,7 @@ class Model:
         if iteration == total:
             print()
 
-    def run(self, time_steps, logs_path, save=True, draw=False, interactive=False, draw_export=False, draw_interval=5, save_interval=1, save_interval_max=1000):
+    def run(self, time_steps, logs_path, save=True, draw=False, interactive=False, draw_export=False, draw_interval=5, save_interval=4, save_interval_max=1000):
         # Initial call to print 0% progress
         self.printProgressBar(
             0, time_steps, prefix='Progress:', suffix='Complete', length=50)
