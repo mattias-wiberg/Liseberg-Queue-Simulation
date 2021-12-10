@@ -87,7 +87,9 @@ class World:
             map(lambda attraction: attraction.get_shallow_copy(), self.attractions))))
 
     def dump(self, logs_path, name):
-        pickle.dump(self.history, open(logs_path+"/"+name+".p", "wb"))
+        print(logs_path+"/"+name+".p")
+        with open(logs_path+"/"+name+".p", "wb") as f:
+            pickle.dump(self.history, f)
 
     def clear_pngs(self, path=SAVE_PATH):
         files = glob.glob(path + '*')
