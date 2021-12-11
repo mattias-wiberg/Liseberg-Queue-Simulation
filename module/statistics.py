@@ -128,6 +128,29 @@ class Statistics():
             history.append(agent_pos_size)
         return history
 
+    # Print iterations progress
+    def printProgressBar(self, iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
+        """
+        Call in a loop to create terminal progress bar
+        @params:
+            iteration   - Required  : current iteration (Int)
+            total       - Required  : total iterations (Int)
+            prefix      - Optional  : prefix string (Str)
+            suffix      - Optional  : suffix string (Str)
+            decimals    - Optional  : positive number of decimals in percent complete (Int)
+            length      - Optional  : character length of bar (Int)
+            fill        - Optional  : bar fill character (Str)
+            printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+        """
+        percent = ("{0:." + str(decimals) + "f}").format(100 *
+                                                         (iteration / float(total)))
+        filledLength = int(length * iteration // total)
+        bar = fill * filledLength + '-' * (length - filledLength)
+        print(f'\r{prefix} |{bar}| {percent}% {suffix}', end=printEnd)
+        # Print New Line on Complete
+        if iteration == total:
+            print()
+
     def __init__(self, directory="logs/", save_to_filename="statistics.p", skip_first=False):
         self.directory = directory
         self.save_to_filename = save_to_filename
@@ -174,7 +197,7 @@ class Statistics():
 
                 self.fitness_score_by_size_by_type += self.__calc_agent_fitness_by_type()
 
-            print(f'{i}/{i_max}')
+            self.printProgressBar(iteration=i, total=i_max)
 
         del self.history
         self.fitness_score_by_size_by_type /= (i+1)
@@ -407,5 +430,7 @@ class Statistics():
         plt.figure(figsize=(16,9),dpi=80)
         for time_step in range(len(self.time_values)):
             update_hist(time_step)
+            self.printProgressBar(iteration=time_step, total=len(self.time_values))
+
         self.build_gif(path="gif_export/")
 
