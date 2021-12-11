@@ -134,6 +134,9 @@ class Statistics():
         if save_to_filename in self.pickle_files:
             self.pickle_files.remove(save_to_filename)
 
+        if "model.p" in self.pickle_files:
+            self.pickle_files.remove("model.p")
+
         if skip_first:
             self.pickle_files.pop(0)
 
@@ -323,7 +326,7 @@ class Statistics():
 
         attraction_positions = np.array([[8.11,-119.02],[43.97,-148.56],[185.90,-182.40],[316.63,-222.73],
                                 [372.44,-252.04],[340.22,-275.95],[296.42,-316.60],[222.22,-347.70],[212.63,-370.02],
-                                [211.82,-250.65],[-259.89,-294.88]])
+                                [211.82,-250.65],[259.89,-294.88]])
         spawn_positions = np.array([[0,0],[226.69,-413.26]])
         ATTRACTION_SIZE = 50
 
@@ -381,13 +384,12 @@ class Statistics():
             plt.scatter(x=self.agent_pos_size_history[time_step][:,0], 
             y=self.agent_pos_size_history[time_step][:,1], 
             s=ATTRACTION_SIZE*self.agent_pos_size_history[time_step][:,2]/4, color='b')
-            for i in range(len(colors)):
-                plt.scatter(attraction_positions[i,0], attraction_positions[i,1], s=ATTRACTION_SIZE, c=colors[i], marker='s')
+            plt.scatter(attraction_positions[:,0], attraction_positions[:,1], s=ATTRACTION_SIZE, c=colors, marker='s')
             plt.scatter(spawn_positions[:,0], spawn_positions[:,1], s=ATTRACTION_SIZE, c=[[170/250, 0, 1]], marker='^')
             plt.axis("equal")
 
 
-        fig = plt.figure()
-        animation_handle = animation.FuncAnimation(fig, update_hist, self.time_values, interval=1)
-        plt.show()
+        for time_step in range(len(self.time_values)):
+            update_hist(time_step)
+            plt.pause(1)
 
