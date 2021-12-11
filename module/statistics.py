@@ -325,13 +325,7 @@ class Statistics():
                                 [372.44,-252.04],[340.22,-275.95],[296.42,-316.60],[222.22,-347.70],[212.63,-370.02],
                                 [211.82,-250.65],[-259.89,-294.88]])
         spawn_positions = np.array([[0,0],[226.69,-413.26]])
-        min_x_pos = -5
-        max_x_pos = 380
-        min_y_pos = -420
-        max_y_pos = 5
-
         ATTRACTION_SIZE = 50
-
 
         def update_hist(time_step):
             plt.subplot(2, 3, 1)
@@ -384,16 +378,14 @@ class Statistics():
             # scatter animation #
             plt.subplot(2,3,5)
             plt.cla()
-            x = time_step
-            y = time_step
-            plt.scatter(x, y, s=50*ATTRACTION_SIZE/4, color='b')
+            plt.scatter(x=self.agent_pos_size_history[time_step][:,0], 
+            y=self.agent_pos_size_history[time_step][:,1], 
+            s=ATTRACTION_SIZE*self.agent_pos_size_history[time_step][:,2]/4, color='b')
             for i in range(len(colors)):
                 plt.scatter(attraction_positions[i,0], attraction_positions[i,1], s=ATTRACTION_SIZE, c=colors[i], marker='s')
             plt.scatter(spawn_positions[:,0], spawn_positions[:,1], s=ATTRACTION_SIZE, c=[[170/250, 0, 1]], marker='^')
-            plt.xlim((min_x_pos,max_x_pos))
-            plt.ylim((min_y_pos,max_y_pos))
+            plt.axis("equal")
 
-            
 
         fig = plt.figure()
         animation_handle = animation.FuncAnimation(fig, update_hist, self.time_values, interval=1)
