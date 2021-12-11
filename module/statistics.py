@@ -115,7 +115,7 @@ class Statistics():
 
         return fitness_score_by_size_by_type
 
-    def __init__(self, directory="logs/", save_to_filename="statistics.p", skip_first=True):
+    def __init__(self, directory="logs/", save_to_filename="statistics.p", skip_first=False):
         self.directory = directory
         self.save_to_filename = save_to_filename
         self.pickle_files = os.listdir(directory)
@@ -288,27 +288,76 @@ class Statistics():
         plt.show()
 
     def plt_histo(self):
-        def update_hist(time_step, data, max_data_val, num_attractions):
-            colors = ['blue', 'black', 'red', 'green', 'orange', 'brown', 'violet', 'olive', 'indigo', 'tan', 'slategray']
-            plt.subplot(1, 2, 1)
+
+        max_avg_queue_time = np.max(self.avg_queue_times)
+        max_queue_time = np.max(self.queue_time_history)
+        max_cum_queue_time = np.max(self.cum_queue_time_per_attraction)
+
+        num_agents_in_attractions = np.sum(self.num_agents_history, axis=1)
+        num_agents_in_park = np.reshape(self.total_num_people_history - num_agents_in_attractions, newshape=(self.num_agents_history.shape[0],1))
+        num_agents_history_inclusive_in_park = np.hstack( (self.num_agents_history,num_agents_in_park) )
+        max_num_agents = np.max(num_agents_history_inclusive_in_park)
+        short_attraction_names_inclusive_in_park = ["He", "At", "Li", "Lo", "Ba",
+                                 "Va", "Me", "Fl", "Ha", "Ae", "Sl", "Not"]
+
+        max_cum_num_agents = np.max(self.cum_num_agents_history)
+
+        short_attraction_names = ["He", "At", "Li", "Lo", "Ba",
+                                 "Va", "Me", "Fl", "Ha", "Ae", "Sl"]
+        num_attractions = len(short_attraction_names)
+
+        colors = ['blue', 'black', 'red', 'green', 'orange', 'brown', 'violet', 'olive', 'indigo', 'tan', 'slategray']
+
+        def update_hist(time_step):
+            plt.subplot(2, 3, 1)
             plt.cla()
-            N, bins, patches = plt.hist(self.attraction_names, weights=data[time_step,:], bins=np.arange(num_attractions+1)-0.5)
-            plt.title(f'Queue Time Per Attraction [{time_step}]')
-            plt.ylim((0,max_data_val))
+            N, bins, patches = plt.hist(short_attraction_names, weights=self.avg_queue_times[time_step,:], bins=np.arange(num_attractions+1)-0.5)
+            plt.title(f'Average Queue Time Per Attraction')
+            plt.ylabel('Number of Time Steps')
+            plt.ylim((0,max_avg_queue_time))
             for i in range(len(colors)):
                 patches[i].set_facecolor(colors[i])
 
-            plt.subplot(1, 2, 2)
+
+            plt.subplot(2, 3, 2)
             plt.cla()
-            N, bins, patches = plt.hist(self.attraction_names, weights=data[time_step,:], bins=np.arange(num_attractions+1)-0.5)
+            N, bins, patches = plt.hist(short_attraction_names, weights=self.queue_time_history[time_step,:], bins=np.arange(num_attractions+1)-0.5)
             plt.title(f'Queue Time Per Attraction [{time_step}]')
-            plt.ylim((0,max_data_val))
+            plt.ylim((0,max_queue_time))
+            for i in range(len(colors)):
+                patches[i].set_facecolor(colors[i])
+
+
+            plt.subplot(2, 3, 3)
+            plt.cla()
+            N, bins, patches = plt.hist(short_attraction_names, weights=self.cum_queue_time_per_attraction[time_step,:], bins=np.arange(num_attractions+1)-0.5)
+            plt.title(f'Cumulative Queue Time Per Attraction')
+            plt.ylim((0,max_cum_queue_time))
+            for i in range(len(colors)):
+                patches[i].set_facecolor(colors[i])
+
+            
+            plt.subplot(2, 3, 4)
+            plt.cla()
+            N, bins, patches = plt.hist(short_attraction_names_inclusive_in_park, weights=num_agents_history_inclusive_in_park[time_step,:], bins=np.arange(num_attractions+2)-0.5)
+            plt.title(f'Number of People Per Attraction')
+            plt.ylabel('Number of People')
+            plt.ylim((0,max_num_agents))
+            for i in range(len(colors)):
+                patches[i].set_facecolor(colors[i])
+            patches[i+1].set_facecolor("deeppink")
+
+
+            plt.subplot(2, 3, 6)
+            plt.cla()
+            N, bins, patches = plt.hist(short_attraction_names, weights=self.cum_num_agents_history[time_step,:], bins=np.arange(num_attractions+1)-0.5)
+            plt.title(f'Cumulative Number of People Per Attraction')
+            plt.ylim((0,max_cum_num_agents))
             for i in range(len(colors)):
                 patches[i].set_facecolor(colors[i])
             
 
         fig = plt.figure()
-
-        animation_handle = animation.FuncAnimation(fig, update_hist, self.time_values, fargs=(self.queue_time_history, int(np.max(self.queue_time_history)), len(self.attraction_names), ), interval=1)
+        animation_handle = animation.FuncAnimation(fig, update_hist, self.time_values, interval=1)
         plt.show()
 
