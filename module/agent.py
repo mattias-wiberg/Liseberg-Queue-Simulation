@@ -226,5 +226,6 @@ class Agent:
         del copied_agent.expected_qtime
         del copied_agent.commited
         del copied_agent.target
+        copied_agent.position = copy.copy(self.position)
         copied_agent.visited = copy.copy(self.visited)
         return copied_agent
