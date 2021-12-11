@@ -4,6 +4,8 @@ from agent import Type, State
 import pickle
 import os
 import matplotlib.animation as animation
+import glob
+import imageio
 
 class Statistics():
     def __calc_queue_time_per_attraction(self):
@@ -176,6 +178,8 @@ class Statistics():
 
         del self.history
         self.fitness_score_by_size_by_type /= (i+1)
+        self.cum_queue_time_per_attraction *= 4 # multiplied by 4 because every history entry is 4 seconds (250 entries)
+
 
         self.time_values = list(range(np.shape(self.queue_time_history)[0]))
 
@@ -303,6 +307,13 @@ class Statistics():
         plt.legend()
         plt.show()
 
+    def build_gif(self, path, name="new_gif.gif"):
+        frames = []
+        files = glob.glob(path + '*')
+        for filename in files:
+            frames.append(imageio.imread(filename))
+        imageio.mimsave(name, frames, format='GIF', fps=30)
+
     def plt_histo(self):
 
         max_avg_queue_time = np.max(self.avg_queue_times)
@@ -334,8 +345,8 @@ class Statistics():
             plt.subplot(2, 3, 1)
             plt.cla()
             N, bins, patches = plt.hist(short_attraction_names, weights=self.avg_queue_times[time_step,:], bins=np.arange(num_attractions+1)-0.5)
-            plt.title(f'Average Queue Time Per Attraction')
-            plt.ylabel('Number of Time Steps')
+            plt.title(f'Average Queue Time/Attraction')
+            plt.ylabel('Time [s]')
             plt.ylim((0,max_avg_queue_time))
             for i in range(len(colors)):
                 patches[i].set_facecolor(colors[i])
@@ -344,7 +355,7 @@ class Statistics():
             plt.subplot(2, 3, 2)
             plt.cla()
             N, bins, patches = plt.hist(short_attraction_names, weights=self.queue_time_history[time_step,:], bins=np.arange(num_attractions+1)-0.5)
-            plt.title(f'Queue Time Per Attraction [{time_step}]')
+            plt.title(f'Queue Time/Attraction')
             plt.ylim((0,max_queue_time))
             for i in range(len(colors)):
                 patches[i].set_facecolor(colors[i])
@@ -353,7 +364,7 @@ class Statistics():
             plt.subplot(2, 3, 3)
             plt.cla()
             N, bins, patches = plt.hist(short_attraction_names, weights=self.cum_queue_time_per_attraction[time_step,:], bins=np.arange(num_attractions+1)-0.5)
-            plt.title(f'Cumulative Queue Time Per Attraction')
+            plt.title(f'Cumulative Queue Time/Attraction')
             plt.ylim((0,max_cum_queue_time))
             for i in range(len(colors)):
                 patches[i].set_facecolor(colors[i])
@@ -362,7 +373,7 @@ class Statistics():
             plt.subplot(2, 3, 4)
             plt.cla()
             N, bins, patches = plt.hist(short_attraction_names_inclusive_in_park, weights=num_agents_history_inclusive_in_park[time_step,:], bins=np.arange(num_attractions+2)-0.5)
-            plt.title(f'Number of People Per Attraction')
+            plt.title(f'Number of People/Attraction')
             plt.ylabel('Number of People')
             plt.ylim((0,max_num_agents))
             for i in range(len(colors)):
@@ -373,7 +384,7 @@ class Statistics():
             plt.subplot(2, 3, 6)
             plt.cla()
             N, bins, patches = plt.hist(short_attraction_names, weights=self.cum_num_agents_history[time_step,:], bins=np.arange(num_attractions+1)-0.5)
-            plt.title(f'Cumulative Number of People Per Attraction')
+            plt.title(f'Cumulative Number of People/Attraction')
             plt.ylim((0,max_cum_num_agents))
             for i in range(len(colors)):
                 patches[i].set_facecolor(colors[i])
@@ -386,10 +397,15 @@ class Statistics():
             s=ATTRACTION_SIZE*self.agent_pos_size_history[time_step][:,2]/4, color='b')
             plt.scatter(attraction_positions[:,0], attraction_positions[:,1], s=ATTRACTION_SIZE, c=colors, marker='s')
             plt.scatter(spawn_positions[:,0], spawn_positions[:,1], s=ATTRACTION_SIZE, c=[[170/250, 0, 1]], marker='^')
+            plt.title(f"Time = {4*time_step} [s]")
             plt.axis("equal")
 
+            t = format(4*time_step, "020b")
+            name = f'{t}.png'
+            plt.savefig("gif_export/"+name)
 
+        plt.figure(figsize=(16,9),dpi=80)
         for time_step in range(len(self.time_values)):
             update_hist(time_step)
-            plt.pause(1)
+        self.build_gif(path="gif_export/")
 
