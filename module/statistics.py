@@ -115,6 +115,17 @@ class Statistics():
 
         return fitness_score_by_size_by_type
 
+    def __calc_agent_pos_size_history(self):
+        history = []
+        for time_step in range(len(self.time_values)):
+            agent_pos_size = np.zeros((0,3))
+            agents = self.history[time_step][0]
+            for agent in agents:
+                if agent.state == State.IN_PARK:
+                    agent_pos_size = np.vstack( (agent_pos_size, np.array([agent.position[0],agent.position[1],agent.group_size])) )
+            history.append(agent_pos_size)
+        return history
+
     def __init__(self, directory="logs/", save_to_filename="statistics.p", skip_first=False):
         self.directory = directory
         self.save_to_filename = save_to_filename
@@ -134,6 +145,7 @@ class Statistics():
         self.num_agents_history = np.empty((0,len(self.attraction_names)))
         self.cum_num_agents_history = np.empty((0,len(self.attraction_names)))
         self.total_num_people_history = np.empty((0,))
+        self.agent_pos_size_history = []    # index this array to get timestep, inside 0: x, 1: y, 2: s
 
         i_max = len(self.pickle_files)
         for i,file in enumerate(self.pickle_files):
@@ -145,6 +157,7 @@ class Statistics():
             self.num_agents_history = np.vstack( (self.num_agents_history, self.__calc_num_agents_per_attraction()) )
             self.cum_num_agents_history = np.vstack( (self.cum_num_agents_history, self.__calc_cum_num_agents_per_attraction()) )
             self.total_num_people_history = np.hstack( (self.total_num_people_history, self.__calc_total_num_people_history()) )
+            self.agent_pos_size_history.extend(self.__calc_agent_pos_size_history())
 
             if i == 0:
                 # these variables not yet initiated
@@ -312,6 +325,11 @@ class Statistics():
                                 [372.44,-252.04],[340.22,-275.95],[296.42,-316.60],[222.22,-347.70],[212.63,-370.02],
                                 [211.82,-250.65],[-259.89,-294.88]])
         spawn_positions = np.array([[0,0],[226.69,-413.26]])
+        min_x_pos = -5
+        max_x_pos = 380
+        min_y_pos = -420
+        max_y_pos = 5
+
         ATTRACTION_SIZE = 50
 
 
@@ -371,8 +389,11 @@ class Statistics():
             plt.scatter(x, y, s=50*ATTRACTION_SIZE/4, color='b')
             for i in range(len(colors)):
                 plt.scatter(attraction_positions[i,0], attraction_positions[i,1], s=ATTRACTION_SIZE, c=colors[i], marker='s')
-            
+            plt.scatter(spawn_positions[:,0], spawn_positions[:,1], s=ATTRACTION_SIZE, c=[[170/250, 0, 1]], marker='^')
+            plt.xlim((min_x_pos,max_x_pos))
+            plt.ylim((min_y_pos,max_y_pos))
 
+            
 
         fig = plt.figure()
         animation_handle = animation.FuncAnimation(fig, update_hist, self.time_values, interval=1)
