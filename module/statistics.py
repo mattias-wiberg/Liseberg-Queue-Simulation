@@ -154,6 +154,22 @@ class Statistics():
         # https://stackoverflow.com/questions/51769962/find-and-delete-all-zero-columns-from-numpy-array-using-fancy-indexing
         return self.fitness_score_by_size_by_type[:,~np.all(self.fitness_score_by_size_by_type == 0, axis = 0)]
 
+    def __calc_avg_num_people_attraction(self):
+        # TAKES GROUP SIZE INTO ACCOUNT AND BOTH THE AGENTS IN WAGONS AND QUEUE
+        avg = np.zeros(shape=self.num_agents_history.shape)
+        avg[0,:] = self.num_agents_history[0,:]
+
+        num_agents_in_attractions = np.sum(self.num_agents_history, axis=1)
+        num_agents_in_park = self.total_num_people_history - num_agents_in_attractions
+        avg_in_park = np.zeros(shape=num_agents_in_park.shape)
+        avg_in_park[0] = num_agents_in_park[0]
+
+        for time_step in range(1,len(self.time_values)):
+            avg[time_step,:] = np.average(self.num_agents_history[:time_step+1,:],axis=0)
+            avg_in_park[time_step] = np.average(num_agents_in_park[:time_step+1])
+        
+        return np.hstack( (avg, np.reshape(avg_in_park, newshape=(avg_in_park.shape[0],1))) )
+
     def __init__(self, directory="logs/", save_to_filename="statistics.p", skip_first=False):
         self.directory = directory
         self.save_to_filename = save_to_filename
@@ -220,6 +236,8 @@ class Statistics():
         self.n_rides_div_q_time = self.total_n_rides/self.total_queue_time
         self.n_rides_div_q_time = np.nan_to_num(self.n_rides_div_q_time)
 
+        self.avg_num_people_attraction = self.__calc_avg_num_people_attraction()
+
         with open(self.directory+self.save_to_filename, "wb") as f:
             pickle.dump(self, f)        
 
@@ -230,27 +248,25 @@ class Statistics():
             plt.plot(
                 self.time_values, self.cum_queue_time_per_attraction[:, i], label=attraction_name)
 
-        plt.xlabel('Time Step')
-        plt.ylabel('Cumulative Queue Time [number of timesteps]')
-        plt.title('Cumulative Queue Time Per Attraction')
+        plt.xlabel('Time Step [Time Step * 4 s]')
+        plt.ylabel('Cumulative Queue Time [s]')
+        plt.title('Cumulative Queue Time/Attraction')
         plt.legend()
         plt.show()
 
     def plot_queue_time_per_attraction(self):
-        # TODO: animated histo plot instead
         plt.clf()
         for i, attraction_name in enumerate(self.attraction_names):
             plt.plot(self.time_values,
                      self.queue_time_history[:, i], label=attraction_name)
 
-        plt.xlabel('Time Step')
-        plt.ylabel('Queue Time [number of timesteps]')
-        plt.title('Queue Time Per Attraction')
+        plt.xlabel('Time Step [Time Step * 4 s]')
+        plt.ylabel('Queue Time [s]')
+        plt.title('Queue Time/Attraction')
         plt.legend()
         plt.show()
 
     def plot_num_agents_per_attraction(self):
-        # TODO: animated histo plot instead
         # TAKES GROUP SIZE INTO ACCOUNT AND BOTH THE AGENTS IN WAGONS AND QUEUE
         num_agents_in_attractions = np.sum(self.num_agents_history, axis=1)
         num_agents_in_park = self.total_num_people_history - num_agents_in_attractions
@@ -263,9 +279,21 @@ class Statistics():
         plt.plot(self.time_values, num_agents_in_park,
                  label="Not In Attraction")
 
-        plt.xlabel('Time Step')
-        plt.ylabel('Number of Agents')
-        plt.title('Number of Agents Per Attraction')
+        plt.xlabel('Time Step [Time Step * 4 s]')
+        plt.ylabel('Number of People')
+        plt.title('Number of People/Attraction')
+        plt.legend()
+        plt.show()
+
+    def plot_avg_num_agents_per_attraction(self):
+        # TAKES GROUP SIZE INTO ACCOUNT AND BOTH THE AGENTS IN WAGONS AND QUEUE
+        plt.clf()
+        for i, attraction_name in enumerate(self.attraction_names):
+            plt.plot(self.time_values,self.avg_num_people_attraction[:, i], label=attraction_name)
+        plt.plot(self.time_values, self.avg_num_people_attraction[:,i+1],label="Not In Attraction")
+        plt.xlabel('Time Step [Time Step * 4 s]')
+        plt.ylabel('Number of People')
+        plt.title('Average Number of People/Attraction')
         plt.legend()
         plt.show()
 
@@ -275,18 +303,18 @@ class Statistics():
             plt.plot(self.time_values,
                      self.cum_num_agents_history[:, i], label=attraction_name)
 
-        plt.xlabel('Time Step')
-        plt.ylabel('Cumulative Number of Agents')
-        plt.title('Cumulative Number of Agents Per Attraction')
+        plt.xlabel('Time Step [Time Step * 4 s]')
+        plt.ylabel('Cumulative Number of People')
+        plt.title('Cumulative Number of People/Attraction')
         plt.legend()
         plt.show()
 
     def plot_total_number_of_rides(self):
         plt.clf()
         plt.plot(self.time_values, self.total_n_rides)
-        plt.xlabel('Time Step')
+        plt.xlabel('Time Step [Time Step * 4 s]')
         plt.ylabel('Total Number of Rides')
-        plt.title('Total Number of Rides Over All The Attractions')
+        plt.title('Total Number of Rides Over All the Attractions')
         plt.show()
 
     def plot_avg_queue_time(self):
@@ -295,44 +323,47 @@ class Statistics():
             plt.plot(self.time_values,
                      self.avg_queue_times[:, i], label=attraction_name)
 
-        plt.xlabel('Time Step')
-        plt.ylabel('Average Queue Time [number of timesteps]')
-        plt.title('Average Queue Time Per Attraction')
+        plt.xlabel('Time Step [Time Step * 4 s]')
+        plt.ylabel('Average Queue Time [s]')
+        plt.title('Average Queue Time/Attraction')
         plt.legend()
         plt.show()
 
     def plot_agent_fitness_by_type(self):
         # agent fitness defined as sum visited attractions/sum cumulative queue time
         # by type and by group size
+        print('Agent Fitness Heatmap Values:')
+        print(self.fitness_score_by_size_by_type)
         plt.imshow(self.fitness_score_by_size_by_type,
                    cmap='binary', interpolation='nearest')
         plt.colorbar()
         plt.xlabel('Agent Type')
         plt.ylabel('Group Size')
-        plt.title('Fitness Score Per Agent Type and Group Size')
+        plt.title('Fitness Score/Agent Type and Group Size')
         plt.show()
+        
 
     def plot_n_rides_div_q_time(self):
         # sum all rides/sum cumulative queue time
         plt.clf()
         plt.plot(self.time_values, self.n_rides_div_q_time)
-        plt.xlabel('Time Step')
+        plt.xlabel('Time Step [Time Step * 4 s]')
         plt.ylabel(
-            'Total Number of All Rides / Cumulative Queue Over All Attractions')
+            'Total Number of All Rides/Cumulative Queue Over All Attractions')
         plt.title(
-            'Total Number of All Rides / Cumulative Queue Over All Attractions')
+            'Total Number of All Rides/Cumulative Queue Over All Attractions')
         plt.show()
 
     def plot_avg_std_queue_time(self):
         plt.clf()
         plt.plot(self.time_values, self.avg_queue_times_all_attractions,
-                 label="Average Queue Time")
+                 label="Average Queue Time [s]")
         plt.plot(self.time_values, self.std_avg_queue_times_all_attractions,
-                 label="Std of The Average Queue Time")
-        plt.xlabel('Time Step')
-        plt.ylabel('Value')
+                 label="Std. of the Average Queue Time [s]")
+        plt.xlabel('Time Step [Time Step * 4 s]')
+        plt.ylabel('Seconds')
         plt.title(
-            'Average Queue Time Over All Attractions and Standard Deviation of Said Average')
+            'Average Queue Time Over All Attractions and Standard Deviation of Said Average [s]')
         plt.legend()
         plt.show()
 
@@ -344,16 +375,20 @@ class Statistics():
         imageio.mimsave(name, frames, format='GIF', fps=30)
 
     def display_stats(self):
-        print(self.attraction_names)
+        print(str(self.attraction_names).replace("]", "") + ", 'Not In Attraction']")
         print(f'Total Simulation Time: {(self.time_values[-1]+1)*4} s')
+        
         print(f'Average Queue Time/Attraction [s]: {list(map(lambda val:round(val,2), self.avg_queue_times[-1,:]))}')
+        print(f'Average Queue Time Over All Attractions: {round(self.avg_queue_times_all_attractions[-1],2)} s and Standard Deviation of Said Average: {round(self.std_avg_queue_times_all_attractions[-1],2)} s')
         print(f'Cumulative Queue Time/Attraction [s]: {list(map(lambda val:round(val,2), self.cum_queue_time_per_attraction[-1,:]))}')
+        
+        print(f'Average Number of People/Attraction: {list(map(lambda val:round(val,2), self.avg_num_people_attraction[-1,:]))}')
         print(f'Cumulative Number of People/Attraction: {list(map(int, self.cum_num_agents_history[-1,:]))}')
-        print(f'Agent Fitness Score (Visited Attractions/Cumulative Queue Time): Average: {round(np.average(self.fitness_score_by_size_by_type),5)}, Std: {round(np.std(self.fitness_score_by_size_by_type),5)}')
+        
         print(f'Total Number of Rides: {int(self.total_n_rides[-1])}')
         print(f'Total Number of All Rides/Cumulative Queue Over All Attractions: {round(self.n_rides_div_q_time[-1],5)}')
-        print(f'Average Queue Time Over All Attractions: {round(self.avg_queue_times_all_attractions[-1],2)} s and Standard Deviation of Said Average: {round(self.std_avg_queue_times_all_attractions[-1],2)} s')
-
+        print(f'Agent Fitness Score (Visited Attractions/Cumulative Queue Time): Average: {round(np.average(self.fitness_score_by_size_by_type),5)}, Std: {round(np.std(self.fitness_score_by_size_by_type),5)}')
+        
     def animate(self):
 
         max_avg_queue_time = np.max(self.avg_queue_times)
