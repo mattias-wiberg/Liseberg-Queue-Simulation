@@ -389,6 +389,23 @@ class Statistics():
         print(f'Total Number of All Rides/Cumulative Queue Over All Attractions: {round(self.n_rides_div_q_time[-1],5)}')
         print(f'Agent Fitness Score (Visited Attractions/Cumulative Queue Time): Average: {round(np.average(self.fitness_score_by_size_by_type),5)}, Std: {round(np.std(self.fitness_score_by_size_by_type),5)}')
         
+
+        to_file = [str(self.attraction_names).replace("]", "") + ", 'Not In Attraction']",
+        f'Total Simulation Time: {(self.time_values[-1]+1)*4} s',
+        f'Average Queue Time/Attraction [s]: {list(map(lambda val:round(val,2), self.avg_queue_times[-1,:]))}',
+        f'Average Queue Time Over All Attractions: {round(self.avg_queue_times_all_attractions[-1],2)} s and Standard Deviation of Said Average: {round(self.std_avg_queue_times_all_attractions[-1],2)} s',
+        f'Cumulative Queue Time/Attraction [s]: {list(map(lambda val:round(val,2), self.cum_queue_time_per_attraction[-1,:]))}',
+        f'Average Number of People/Attraction: {list(map(lambda val:round(val,2), self.avg_num_people_attraction[-1,:]))}',
+        f'Cumulative Number of People/Attraction: {list(map(int, self.cum_num_agents_history[-1,:]))}',
+        f'Total Number of Rides: {int(self.total_n_rides[-1])}',
+        f'Total Number of All Rides/Cumulative Queue Over All Attractions: {round(self.n_rides_div_q_time[-1],5)}',
+        f'Agent Fitness Score (Visited Attractions/Cumulative Queue Time): Average: {round(np.average(self.fitness_score_by_size_by_type),5)}, Std: {round(np.std(self.fitness_score_by_size_by_type),5)}']
+
+        textfile = open(self.directory+"statistics.txt", "w")
+        for element in to_file:
+            textfile.write(element + "\n")
+        textfile.close()
+
     def animate(self):
 
         max_avg_queue_time = np.max(self.avg_queue_times)
