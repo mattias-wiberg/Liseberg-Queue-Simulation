@@ -3,7 +3,6 @@ import numpy as np
 from agent import Type, State
 import pickle
 import os
-import matplotlib.animation as animation
 import glob
 import imageio
 
@@ -151,6 +150,10 @@ class Statistics():
         if iteration == total:
             print()
 
+    def __remove_zero_entries(self):
+        # https://stackoverflow.com/questions/51769962/find-and-delete-all-zero-columns-from-numpy-array-using-fancy-indexing
+        return self.fitness_score_by_size_by_type[:,~np.all(self.fitness_score_by_size_by_type == 0, axis = 0)]
+
     def __init__(self, directory="logs/", save_to_filename="statistics.p", skip_first=False):
         self.directory = directory
         self.save_to_filename = save_to_filename
@@ -201,6 +204,8 @@ class Statistics():
 
         del self.history
         self.fitness_score_by_size_by_type /= (i+1)
+        self.fitness_score_by_size_by_type = self.__remove_zero_entries()
+
         self.cum_queue_time_per_attraction *= 4 # multiplied by 4 because every history entry is 4 seconds (250 entries)
 
 
@@ -211,6 +216,9 @@ class Statistics():
         self.avg_queue_times = self.__calc_avg_queue_times()
         self.avg_queue_times_all_attractions = np.average(self.avg_queue_times, axis=1)
         self.std_avg_queue_times_all_attractions = self.__calc_std_avg_queue_times_all_attractions()
+        
+        self.n_rides_div_q_time = self.total_n_rides/self.total_queue_time
+        self.n_rides_div_q_time = np.nan_to_num(self.n_rides_div_q_time)
 
         with open(self.directory+self.save_to_filename, "wb") as f:
             pickle.dump(self, f)        
@@ -307,9 +315,7 @@ class Statistics():
     def plot_n_rides_div_q_time(self):
         # sum all rides/sum cumulative queue time
         plt.clf()
-        n_rides_div_q_time = self.total_n_rides/self.total_queue_time
-        n_rides_div_q_time = np.nan_to_num(n_rides_div_q_time)
-        plt.plot(self.time_values, n_rides_div_q_time)
+        plt.plot(self.time_values, self.n_rides_div_q_time)
         plt.xlabel('Time Step')
         plt.ylabel(
             'Total Number of All Rides / Cumulative Queue Over All Attractions')
@@ -337,7 +343,18 @@ class Statistics():
             frames.append(imageio.imread(filename))
         imageio.mimsave(name, frames, format='GIF', fps=30)
 
-    def plt_histo(self):
+    def display_stats(self):
+        print(self.attraction_names)
+        print(f'Total Simulation Time: {(self.time_values[-1]+1)*4} s')
+        print(f'Average Queue Time/Attraction [s]: {list(map(lambda val:round(val,2), self.avg_queue_times[-1,:]))}')
+        print(f'Cumulative Queue Time/Attraction [s]: {list(map(lambda val:round(val,2), self.cum_queue_time_per_attraction[-1,:]))}')
+        print(f'Cumulative Number of People/Attraction: {list(map(int, self.cum_num_agents_history[-1,:]))}')
+        print(f'Agent Fitness Score (Visited Attractions/Cumulative Queue Time): Average: {round(np.average(self.fitness_score_by_size_by_type),5)}, Std: {round(np.std(self.fitness_score_by_size_by_type),5)}')
+        print(f'Total Number of Rides: {int(self.total_n_rides[-1])}')
+        print(f'Total Number of All Rides/Cumulative Queue Over All Attractions: {round(self.n_rides_div_q_time[-1],5)}')
+        print(f'Average Queue Time Over All Attractions: {round(self.avg_queue_times_all_attractions[-1],2)} s and Standard Deviation of Said Average: {round(self.std_avg_queue_times_all_attractions[-1],2)} s')
+
+    def animate(self):
 
         max_avg_queue_time = np.max(self.avg_queue_times)
         max_queue_time = np.max(self.queue_time_history)
@@ -420,10 +437,10 @@ class Statistics():
             s=ATTRACTION_SIZE*self.agent_pos_size_history[time_step][:,2]/4, color='b')
             plt.scatter(attraction_positions[:,0], attraction_positions[:,1], s=ATTRACTION_SIZE, c=colors, marker='s')
             plt.scatter(spawn_positions[:,0], spawn_positions[:,1], s=ATTRACTION_SIZE, c=[[170/250, 0, 1]], marker='^')
-            plt.title(f"Time = {4*time_step} [s]")
+            plt.title(f"Time = {4*(time_step+1)} [s]")
             plt.axis("equal")
 
-            t = format(4*time_step, "020b")
+            t = format(4*(time_step+1), "020b")
             name = f'{t}.png'
             plt.savefig("gif_export/"+name)
 
