@@ -3,7 +3,7 @@ from statistics import Statistics
 import os
 
 
-log_directory = "../logs/RANDOM_1.0/0/"
+log_directory = "../logs/0/0/"
 files = os.listdir(log_directory)
 stats_filename = "statistics.p"
 if stats_filename not in files:
