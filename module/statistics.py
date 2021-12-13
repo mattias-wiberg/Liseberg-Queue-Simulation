@@ -498,8 +498,9 @@ class Statistics():
 
         plt.figure(figsize=(16,9),dpi=80)
         for time_step in range(len(self.time_values)):
-            update_hist(time_step)
-            self.printProgressBar(iteration=time_step, total=len(self.time_values))
+            if time_step % 3 == 0:
+                update_hist(time_step)
+                self.printProgressBar(iteration=time_step, total=len(self.time_values))
 
         self.build_gif(path="gif_export/")
 
