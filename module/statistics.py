@@ -502,5 +502,10 @@ class Statistics():
                 update_hist(time_step)
                 self.printProgressBar(iteration=time_step, total=len(self.time_values))
 
-        self.build_gif(path="gif_export/")
+        writer = imageio.get_writer('gif_export/animation.mp4', fps=60)
+        for i,file in enumerate(glob.glob(os.path.join("gif_export/",f'*.png'))):
+            im = imageio.imread(file)
+            writer.append_data(im)
+            print(i)
+        writer.close()
 
