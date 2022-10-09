@@ -1,6 +1,6 @@
 # Liseberg Queue Simulation
  Simulation of liseberg queue simulation of the delayed info about queue times 
-
+![Simulaton](https://github.com/mattias-wiberg/Liseberg-Queue-Simulation/blob/main/Types/NAIVE/naive0.gif?raw=true)
 # Run
 plotting/animation:
     avg total queue time
